@@ -4,7 +4,7 @@ include 'koneksi.php';
 
 // Check if user is already logged in
 if (isset($_SESSION["username"])) {
-    echo "<script> window.location.href='daftar_pembelian.php' </script>";
+    echo "<script> window.location.href='daftar_hewan.php' </script>";
     exit;
 }
 ?>
