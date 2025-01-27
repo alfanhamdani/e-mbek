@@ -173,7 +173,7 @@ if (isset($_SESSION["username"])) {
         if ($jumlahData == 1) {
             if ($konfirmasi == 1) {
                 $_SESSION["username"] = $username;
-                echo "<script> window.location.href='daftar_pembelian.php' </script>";
+                echo "<script> window.location.href='daftar_hewan.php' </script>";
             } else {
                 // User is not confirmed
                 session_destroy();
