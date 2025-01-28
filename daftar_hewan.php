@@ -184,6 +184,6 @@ form a:hover {
             <?php endwhile; ?>
         </tbody>
     </table>
-    <a href="tambah.php">Tambah Data</a>
+    <a href="tambah_hewan.php">Tambah Data</a>
 </body>
 </html>
