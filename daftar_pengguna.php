@@ -31,10 +31,15 @@ if (mysqli_num_rows($result) > 0) {
 // Handle pencarian
 $search_keyword = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
-// Query untuk menghitung total jumlah pengguna dengan pencarian
+// **Perbaikan Query SQL**
 $sql_count = "SELECT COUNT(username) AS total FROM mbek_pengguna 
               WHERE username != 'admin' AND (username LIKE '%$search_keyword%' OR nama LIKE '%$search_keyword%')";
 $result_count = mysqli_query($conn, $sql_count);
+
+if (!$result_count) {
+    die("Query error: " . mysqli_error($conn));
+}
+
 $row_count = mysqli_fetch_assoc($result_count);
 $total_records = $row_count['total'];
 
@@ -55,7 +60,12 @@ $sql = "SELECT * FROM mbek_pengguna
         WHERE username != 'admin' AND (username LIKE '%$search_keyword%' OR nama LIKE '%$search_keyword%') 
         ORDER BY username DESC 
         LIMIT $offset, $records_per_page";
+
 $result = mysqli_query($conn, $sql);
+
+if (!$result) {
+    die("Query error: " . mysqli_error($conn));
+}
 
 // Query untuk mendapatkan total jumlah pengguna (tidak termasuk admin)
 $totalQuery = "SELECT COUNT(*) AS total_users FROM mbek_pengguna WHERE username != 'admin'";

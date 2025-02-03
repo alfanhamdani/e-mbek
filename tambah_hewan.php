@@ -2,6 +2,7 @@
 include 'koneksi.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id_hewan = $_POST['id_hewan'];
     $nama = $_POST['nama'];
     $jenis_kelamin = $_POST['jenis_kelamin'];
     $jumlah = $_POST['jumlah'];
@@ -11,8 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date_record = date('Y-m-d H:i:s');
 
     // Query insert data
-    $query = "INSERT INTO mbek_hewan (nama, jenis_kelamin, jumlah, harga, tanggal, date_record, user_record) 
-              VALUES ('$nama', '$jenis_kelamin', $jumlah, $harga, '$tanggal', '$date_record', '$user_record')";
+    $query = "INSERT INTO mbek_hewan (id_hewan, nama, jenis_kelamin, jumlah, harga, tanggal, date_record, user_record) 
+              VALUES ('$id_hewan', '$nama', '$jenis_kelamin', $jumlah, $harga, '$tanggal', '$date_record', '$user_record')";
     if (mysqli_query($conn, $query)) {
         header('Location: index.php');  
         exit;
@@ -173,6 +174,7 @@ form a:hover {
 <body>
     <h1>Tambah Pembelian Hewan</h1>
     <form method="POST" action="">
+        <label>id hewan: <input type="text" name="nama" required></label><br>
         <label>Nama Hewan: <input type="text" name="nama" required></label><br>
         <label>Jenis Kelamin: 
             <select name="jenis_kelamin" required>
