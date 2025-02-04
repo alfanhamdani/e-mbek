@@ -65,9 +65,8 @@ if (isset($_SESSION["username"])) {
 
 <body class="w3-green">
     <div class="w3-center">
-        <img src="logo e-mbek.png" alt="e-mbek" style="vertical-align: middle; width: 300px;">
+        <img src="logo e-mbek.png" alt="e-mbek" style="vertical-align: middle; width: 250px;">
     </div>
-
 
     <form class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin" action="" method="post"
         style="border-radius: 10px;">
@@ -101,7 +100,7 @@ if (isset($_SESSION["username"])) {
                     <h2>Informasi</h2>
                 </header>
                 <div class="w3-container">
-                    <p>Login Gagal, Check Username dan Password</p>
+                    <p style="color: black;">Login Gagal, Check Username dan Password</p>
                 </div>
             </div>
         </div>
@@ -115,7 +114,7 @@ if (isset($_SESSION["username"])) {
                     <h2>Informasi</h2>
                 </header>
                 <div class="w3-container">
-                    <p>Anda belum dikonfirmasi. Silakan tunggu konfirmasi dari admin.</p>
+                    <p style="color: black;">Anda belum dikonfirmasi. Silakan tunggu konfirmasi dari admin.</p>
                 </div>
             </div>
         </div>

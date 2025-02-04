@@ -108,7 +108,7 @@ $conn->close();
 
 <body class="w3-green">
     <div class="w3-center">
-        <img src="logo e-mbek.png" alt="e-mbek" style="vertical-align: middle; width: 300px;">
+        <img src="logo e-mbek.png" alt="e-mbek" style="vertical-align: middle; width: 250px;">
     </div>
 
     <?php if ($error_message): ?>
@@ -119,7 +119,7 @@ $conn->close();
                     <h2>Informasi</h2>
                 </header>
                 <div class="w3-container">
-                    <p><?php echo htmlspecialchars($error_message); ?></p>
+                    <p style="color: black;"><?php echo htmlspecialchars($error_message); ?></p>
                 </div>
             </div>
         </div>
@@ -132,7 +132,7 @@ $conn->close();
                     <h2>Konfirmasi</h2>
                 </header>
                 <div class="w3-container">
-                    <p><?php echo htmlspecialchars($success_message); ?></p>
+                    <p style="color: black;"><?php echo htmlspecialchars($success_message); ?></p>
                 </div>
                 <footer class="w3-container w3-white" style="text-align: right;">
                     <button id="okButton" class="w3-button w3-green">OK</button>
