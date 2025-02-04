@@ -1,6 +1,5 @@
 <?php
-include 'koneksi.php'; // Sertakan file koneksi ke database
-
+include 'koneksi.php';
 session_start(); // Mulai sesi untuk mengakses informasi sesi pengguna
 
 // Pastikan pengguna telah login sebelumnya
@@ -31,15 +30,10 @@ if (mysqli_num_rows($result) > 0) {
 // Handle pencarian
 $search_keyword = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
-// **Perbaikan Query SQL**
+// Query untuk menghitung total jumlah pengguna dengan pencarian
 $sql_count = "SELECT COUNT(username) AS total FROM mbek_pengguna 
               WHERE username != 'admin' AND (username LIKE '%$search_keyword%' OR nama LIKE '%$search_keyword%')";
 $result_count = mysqli_query($conn, $sql_count);
-
-if (!$result_count) {
-    die("Query error: " . mysqli_error($conn));
-}
-
 $row_count = mysqli_fetch_assoc($result_count);
 $total_records = $row_count['total'];
 
@@ -60,32 +54,30 @@ $sql = "SELECT * FROM mbek_pengguna
         WHERE username != 'admin' AND (username LIKE '%$search_keyword%' OR nama LIKE '%$search_keyword%') 
         ORDER BY username DESC 
         LIMIT $offset, $records_per_page";
-
 $result = mysqli_query($conn, $sql);
 
-if (!$result) {
-    die("Query error: " . mysqli_error($conn));
-}
-
 // Query untuk mendapatkan total jumlah pengguna (tidak termasuk admin)
-$totalQuery = "SELECT COUNT(*) AS total_users FROM mbek_pengguna WHERE username != 'admin'";
+$totalQuery = "SELECT COUNT(*) AS total_hewan FROM mbek_hewan WHERE nama != 'admin'";
 $totalResult = mysqli_query($conn, $totalQuery);
 
 if ($totalResult) {
     $totalData = mysqli_fetch_assoc($totalResult);
-    $totalUsers = $totalData['total_users'];
+    $totalHewan = $totalData['total_hewan'];
 } else {
-    $totalUsers = 0; // Fallback jika terjadi kesalahan
+    $totalHewan = 0; // Fallback jika terjadi kesalahan
 }
+// Ambil data dari database
+$query = "SELECT * FROM mbek_hewan WHERE nama LIKE '%$search_keyword%' ORDER BY date_record DESC";
+
+$result = mysqli_query($conn, $query);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>list pengguna</title>
+    <title>list Hewan</title>
     <link rel="stylesheet" href="w3.css">
     <link rel="icon" href="logo e-mbek.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -236,7 +228,7 @@ if ($totalResult) {
             <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
                 <h3
                     style="margin: 0; line-height: 1.5rem; text-align: center; font-size: 25px; margin-top:5px; margin-bottom: 10px;">
-                    <b>Daftar Pengguna</b>
+                    <b>Daftar hewan</b>
                 </h3>
             </div>
         </div>
@@ -251,7 +243,7 @@ if ($totalResult) {
                     <h2>Konfirmasi</h2>
                 </header>
                 <div class="w3-container">
-                    <p>Apakah Anda yakin ingin menghapus pengguna ini?</p>
+                    <p>Apakah Anda yakin ingin menghapus nama hewan ini?</p>
                     <div class="w3-right">
                         <button class="w3-button w3-grey"
                             onclick="document.getElementById('deleteModal').style.display='none'">Batal</button>
@@ -279,50 +271,63 @@ if ($totalResult) {
             }
         </style>
 
-        <!-- Kotak Pencarian -->
-        <div style="display: flex; justify-content: center; margin: 20px;">
-            <form method="GET" action="" style="width: 100%; max-width: 600px; display: flex; position: relative;">
-                <!-- Input Field with Modern Style -->
-                <input type="text" name="search" class="w3-input w3-border" placeholder="Cari username..."
-                    value="<?php echo isset($_GET['search']) && !empty($_GET['search']) ? '' : htmlspecialchars($search_keyword); ?>"
-                    style="width: 100%; padding: 12px 20px; padding-right: 60px; border-radius: 50px; border: 2px solid #ddd; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); font-size: 16px;">
+     <!-- Kotak Pencarian -->
+<div style="display: flex; justify-content: center; margin: 20px;">
+    <form method="GET" action="" style="width: 100%; max-width: 600px; display: flex; position: relative;">
+        <!-- Input Field -->
+        <input type="text" name="search" id="searchInput" class="w3-input w3-border" 
+            placeholder="Cari nama hewan..." 
+            value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>"
+            style="width: 100%; padding: 12px 20px; padding-right: 60px; border-radius: 50px; 
+                   border: 2px solid #ddd; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); font-size: 16px;">
 
-                <!-- Modern "Cari" Button -->
-                <button type="submit" class="w3-button w3-green"
-                    style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); height: 40px; width: 40px; border-radius: 50%; border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                    <i class="fa fa-search" style="font-size: 18px;"></i> <!-- Increased Font Awesome icon size -->
-                </button>
-            </form>
-        </div>
+        <!-- Tombol "Cari" -->
+        <button type="submit" class="w3-button w3-green"
+            style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); height: 40px; width: 40px; 
+                   border-radius: 50%; border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); cursor: pointer; 
+                   display: flex; align-items: center; justify-content: center;">
+            <i class="fa fa-search" style="font-size: 18px;"></i>
+        </button>
+    </form>
+</div>
+
 
         <!-- Total users -->
         <div style="font-size: 15px; text-align: right; padding-right: 30px;">
-            <span class="w3-bar-item">Total: <?php echo $totalUsers; ?> pengguna</span>
+            <span class="w3-bar-item">Total: <?php echo $totalHewan; ?> hewan</span>
         </div>
 
-        <!-- Table of Users -->
-        <div class="w3-responsive">
+            <!-- Table of Users -->
+            <div class="w3-responsive">
             <table class="w3-table-all w3-centered" border="1" style="border-collapse: collapse; width: 100%;">
                 <tr class="w3-green">
-                    <th>Username</th>
-                    <th>Nama</th>
+                <th>Id hewan</th>
+                <th>Nama Hewan</th>
+                <th>Jenis Kelamin</th>
+                <th>Jumlah</th>
+                <th>Harga</th>
+                <th>Tanggal</th>
                     <?php if ($user_record === 'admin') { ?>
                         <th>Aksi</th>
                     <?php } ?>
                 </tr>
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-                    <tr class="username-row">
-                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['username']); ?></td>
+                    <tr class="hewan-row">
+                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['id_hewan']); ?></td>
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['nama']); ?></td>
+                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jenis_kelamin']); ?></td>
+                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jumlah']); ?></td>
+                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['harga']); ?></td>
+                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['tanggal']); ?></td>
                         <?php if ($user_record === 'admin') { ?>
                             <td style="font-size: 14px; text-align: center;">
-                                <a href="edit_pengguna.php?username=<?php echo $row['username']; ?>"
+                                <a href="edit_hewan.php?id_hewan=<?php echo $row['id_hewan']; ?>"
                                     class="material-icons w3-yellow w3-btn w3-button w3-round"
                                     style="font-size: 15px;">&#xe22b;</a>
                             <?php } ?>
                             <?php if ($user_record === 'admin') { ?>
                                 <a href="#"
-                                    onclick="deleteUser('<?php echo htmlspecialchars($row['username']); ?>', '<?php echo htmlspecialchars($row['nama']); ?>')"
+                                    onclick="deleteHewan('<?php echo htmlspecialchars($row['id_hewan']); ?>', '<?php echo htmlspecialchars($row['id_hewan']); ?>')"
                                     class="fa fa-trash w3-btn w3-button w3-round w3-red" style="font-size: 15px;"></a>
                             <?php } ?>
                         </td>
@@ -331,8 +336,8 @@ if ($totalResult) {
             </table>
         </div>
 
-        <!-- Modern Pagination with Slightly Rectangular Corners -->
-        <div class="pagination-container">
+          <!-- Modern Pagination with Slightly Rectangular Corners -->
+          <div class="pagination-container">
             <!-- Previous Button -->
             <a href="?page=<?php echo max(1, $page - 1); ?>" class="pagination-button">&laquo;</a>
 
@@ -390,7 +395,7 @@ if ($totalResult) {
 
         <!-- Add New User Button -->
         <?php if ($user_record === 'admin') { ?>
-            <a href="tambah_pengguna.php" class="w3-btn w3-round-xlarge w3-green bottom-right">
+            <a href="tambah_hewan.php" class="w3-btn w3-round-xlarge w3-green bottom-right">
                 <i class="fa fa-plus" style="font-size:30px"></i>
             </a>
         <?php } ?>
@@ -408,23 +413,26 @@ if ($totalResult) {
                 document.getElementById("sidebarOverlay").classList.remove('show');
             }
 
-            function deleteUser(username, nama) {
-                var modal = document.getElementById('deleteModal');
-                modal.style.display = 'block'; // Display the delete confirmation modal
-                var modalMessage = modal.querySelector('p');
-                modalMessage.textContent = "Apakah Anda yakin ingin menghapus pengguna '" + nama + "'?";
-                var confirmButton = modal.querySelector('.w3-button.w3-red');
-                confirmButton.onclick = function () {
-                    window.location.href = "hapus_pengguna.php?action=delete&username=" + encodeURIComponent(username);
-                };
-            }
+            function deleteHewan(id_hewan) {
+    var modal = document.getElementById('deleteModal');
+    modal.style.display = 'block'; // Tampilkan modal konfirmasi
+
+    var modalMessage = modal.querySelector('p');
+    modalMessage.textContent = "Apakah Anda yakin ingin menghapus hewan '" + id_hewan + "'?";
+
+    // Simpan nama hewan yang akan dihapus di button 'Hapus'
+    var confirmButton = modal.querySelector('.w3-button.w3-red');
+    confirmButton.onclick = function () {
+        window.location.href = "hapus_hewan.php?id_hewan=" + encodeURIComponent(id_hewan);
+    };
+}
 
             function searchItems() {
                 var input, filter, table, tr, td, i, txtValue;
                 input = document.getElementById("searchInput");
                 filter = input.value.toUpperCase();
                 table = document.querySelector("table");
-                tr = table.getElementsByClassName("username-row");
+                tr = table.getElementsByClassName("hewan-row");
 
                 for (i = 0; i < tr.length; i++) {
                     td = tr[i].getElementsByTagName("td")[0];
@@ -438,6 +446,8 @@ if ($totalResult) {
                     }
                 }
             }
+
+
         </script>
     </div>
 </body>
@@ -445,3 +455,5 @@ if ($totalResult) {
 </html>
 
 <?php mysqli_close($conn); ?>
+
+  

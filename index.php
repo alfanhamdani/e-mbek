@@ -112,7 +112,7 @@ if (isset($_SESSION["username"])) {
                     <span onclick="document.getElementById('idUnconfirmed').style.display='none'"
                         class="w3-button w3-display-topright">&times;</span>
                     <h2>Informasi</h2>
-                </header>
+                </header>   
                 <div class="w3-container">
                     <p style="color: black;">Anda belum dikonfirmasi. Silakan tunggu konfirmasi dari admin.</p>
                 </div>
