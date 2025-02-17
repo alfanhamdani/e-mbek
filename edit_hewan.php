@@ -1,12 +1,14 @@
 <?php
 include 'koneksi.php';
-session_start(); // Mulai sesi untuk mengakses informasi sesi pengguna
+session_start();
 
 // Pastikan pengguna telah login sebelumnya
 if (!isset($_SESSION['username'])) {
     header('Location: index.php'); // Redirect jika pengguna belum login
     exit;
 }
+
+$username = $_SESSION['username']; // Ambil username pengguna dari sesi
 
 $id_hewan = isset($_GET['id_hewan']) ? mysqli_real_escape_string($conn, $_GET['id_hewan']) : '';
 $query = "SELECT * FROM mbek_hewan WHERE id_hewan = '$id_hewan'";
@@ -15,16 +17,15 @@ $data = mysqli_fetch_assoc($result);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_hewan = $_POST['id_hewan'];
-    $nama_baru = $_POST['nama'];
     $jenis_kelamin = $_POST['jenis_kelamin'];
     $jumlah = $_POST['jumlah'];
-    $harga = $_POST['harga'];
+    $harga = str_replace('.', '', $_POST['harga']); // Hapus titik pemisah ribuan
     $tanggal = $_POST['tanggal'];
-    $user_modified = 'admin'; // Sesuaikan dengan pengguna yang login
+    $user_modified = $username;
     $date_modified = date('Y-m-d H:i:s');
 
     $query = "UPDATE mbek_hewan 
-              SET nama = '$nama_baru', jenis_kelamin = '$jenis_kelamin', jumlah = $jumlah, 
+              SET jenis_kelamin = '$jenis_kelamin', jumlah = $jumlah, 
                   harga = $harga, tanggal = '$tanggal', date_modified = '$date_modified', user_modified = '$user_modified' 
               WHERE id_hewan = '$id_hewan'";
     if (mysqli_query($conn, $query)) {
@@ -38,8 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-<link rel="stylesheet" href="w3.css">
+    <link rel="stylesheet" href="w3.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -198,29 +200,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     <form method="post" action="" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
-    <label>ID Hewan: <input type="text" class="w3-input w3-border" name="id_hewan" value="<?= $data['id_hewan'] ?>" readonly></label><br>
-    <label>Nama Hewan: <input type="text" class="w3-input w3-border" id="nama" name="nama" value="<?= $data['nama'] ?>" required></label><br>
-    <label>Jenis Kelamin: 
+        <label>ID Hewan</label>
+        <input type="text" class="w3-input w3-border" name="id_hewan" value="<?= $data['id_hewan'] ?>" readonly><br>
+        <label>Jenis Kelamin</label>
         <select class="w3-input w3-border" id="jenis_kelamin" name="jenis_kelamin" required>
-            <option value="L" <?= $data['jenis_kelamin'] === 'L' ? 'selected' : '' ?>>Laki-laki</option>
-            <option value="P" <?= $data['jenis_kelamin'] === 'P' ? 'selected' : '' ?>>Perempuan</option>
-        </select>
-    </label><br>
-    <label>Jumlah: <input class="w3-input w3-border" type="number" id="jumlah" name="jumlah" value="<?= $data['jumlah'] ?>" required></label><br>
-    <label>Harga: <input class="w3-input w3-border" type="number" id="harga" name="harga" value="<?= $data['harga'] ?>" required></label><br>
-    <label>Tanggal: <input class="w3-input w3-border" type="date" id="tanggal" name="tanggal" value="<?= $data['tanggal'] ?>" required></label><br>
-    <br>
-    <div class="w3-half">
-        <a href="daftar_hewan.php" class="w3-gray w3-button w3-container w3-padding-16" style="width: 100%;">Kembali</a>
-    </div>
-    <div class="w3-half">
-        <button type="submit" id="updateButton" class="w3-button w3-blue w3-container w3-padding-16" style="width: 100%;" disabled>Simpan</button>
-    </div>
-</form>
+            <option value="Jantan" <?= $data['jenis_kelamin'] === 'Jantan' ? 'selected' : '' ?>>Jantan</option>
+            <option value="Betina" <?= $data['jenis_kelamin'] === 'Betina' ? 'selected' : '' ?>>Betina</option>
+        </select><br>
+        <label>Jumlah</label>
+        <input class="w3-input w3-border" type="number" id="jumlah" name="jumlah" value="<?= $data['jumlah'] ?>"
+            required><br>
+        <label>Harga</label>
+        <input class="w3-input w3-border" type="text" id="harga" name="harga"
+            value="<?= number_format($data['harga'], 0, ',', '.') ?>" required oninput="formatRibuan(this)"><br>
+        <label>Tanggal</label>
+        <input class="w3-input w3-border" type="date" id="tanggal" name="tanggal" value="<?= $data['tanggal'] ?>"
+            required><br>
+        <br>
+        <div class="w3-half">
+            <a href="daftar_hewan.php" class="w3-gray w3-button w3-container w3-padding-16"
+                style="width: 100%;">Kembali</a>
+        </div>
+        <div class="w3-half">
+            <button type="submit" id="updateButton" class="w3-button w3-blue w3-container w3-padding-16"
+                style="width: 100%;" disabled>Simpan</button>
+        </div>
+    </form>
 
 
-<!-- JavaScript -->
-<script>
+    <!-- JavaScript -->
+    <script>
+        // JS untuk pemisah ribuan
+        function formatRibuan(input) {
+            let angka = input.value.replace(/\D/g, ''); // Hanya angka
+            input.value = angka.replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Tambahkan titik setiap 3 digit
+        }
+
         function w3_open() {
             document.getElementById("mySidebar").classList.add('show');
             document.getElementById("sidebarOverlay").classList.add('show');
@@ -240,41 +255,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-    var originalValues = {
-        nama: "<?= $data['nama']; ?>",
-        jenis_kelamin: "<?= $data['jenis_kelamin']; ?>",
-        jumlah: "<?= $data['jumlah']; ?>",
-        harga: "<?= $data['harga']; ?>",
-        tanggal: "<?= $data['tanggal']; ?>"
-    };
+            var originalValues = {
+                jenis_kelamin: "<?= $data['jenis_kelamin']; ?>",
+                jumlah: "<?= $data['jumlah']; ?>",
+                harga: "<?= $data['harga']; ?>",
+                tanggal: "<?= $data['tanggal']; ?>"
+            };
 
-    function checkChanges() {
-        var currentValues = {
-            nama: document.getElementById('nama').value,
-            jenis_kelamin: document.getElementById('jenis_kelamin').value,
-            jumlah: document.getElementById('jumlah').value,
-            harga: document.getElementById('harga').value,
-            tanggal: document.getElementById('tanggal').value
-        };
+            function checkChanges() {
+                var currentValues = {
+                    jenis_kelamin: document.getElementById('jenis_kelamin').value,
+                    jumlah: document.getElementById('jumlah').value,
+                    harga: document.getElementById('harga').value,
+                    tanggal: document.getElementById('tanggal').value
+                };
 
-        var updateButton = document.getElementById('updateButton');
+                var updateButton = document.getElementById('updateButton');
 
-        // Periksa jika ada perubahan dari nilai awal
-        if (JSON.stringify(originalValues) !== JSON.stringify(currentValues)) {
-            updateButton.disabled = false;
-        } else {
-            updateButton.disabled = true;
-        }
-    }
+                // Periksa jika ada perubahan dari nilai awal
+                if (JSON.stringify(originalValues) !== JSON.stringify(currentValues)) {
+                    updateButton.disabled = false;
+                } else {
+                    updateButton.disabled = true;
+                }
+            }
 
-    // Tambahkan event listener untuk mendeteksi perubahan
-    document.getElementById('nama').addEventListener('input', checkChanges);
-    document.getElementById('jenis_kelamin').addEventListener('change', checkChanges);
-    document.getElementById('jumlah').addEventListener('input', checkChanges);
-    document.getElementById('harga').addEventListener('input', checkChanges);
-    document.getElementById('tanggal').addEventListener('change', checkChanges);
-});
-    
+            // Tambahkan event listener untuk mendeteksi perubahan
+            document.getElementById('jenis_kelamin').addEventListener('change', checkChanges);
+            document.getElementById('jumlah').addEventListener('input', checkChanges);
+            document.getElementById('harga').addEventListener('input', checkChanges);
+            document.getElementById('tanggal').addEventListener('change', checkChanges);
+        });
+
 
         document.addEventListener("DOMContentLoaded", function () {
             var inputs = document.querySelectorAll('input[required]');
@@ -297,4 +309,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     </script>
 </body>
+
 </html>

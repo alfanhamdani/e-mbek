@@ -220,7 +220,7 @@ $result = mysqli_query($conn, $queryPakan);
             <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
                 <h3
                     style="margin: 0; line-height: 1.5rem; text-align: center; font-size: 25px; margin-top:5px; margin-bottom: 10px;">
-                    <b>Daftar hewan</b>
+                    <b>Daftar Pakan</b>
                 </h3>
             </div>
         </div>

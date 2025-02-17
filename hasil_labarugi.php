@@ -289,8 +289,7 @@ if ($totalResult) {
         </div>
 
         <div class="w3-responsive">
-            <table class="w3-table-all w3-centered" border="1"
-                style="border-collapse: collapse; width: 100%; font-size: 14px;">
+            <table class="w3-table-all w3-centered" border="1" style="border-collapse: collapse; width: 100%;">
                 <tr class="w3-green">
                     <th>ID Hewan</th>
                     <th>HPP</th>
@@ -303,17 +302,60 @@ if ($totalResult) {
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['id_hewan']); ?></td>
 
                         <!-- Kolom HPP -->
-                        <td style="font-size: 15px;"><?php echo number_format($row['hpp'], 2, ',', '.'); ?></td>
+                        <td style="font-size: 15px;">Rp. <?php echo number_format($row['hpp'], 2, ',', '.'); ?></td>
 
                         <!-- Kolom Harga -->
-                        <td style="font-size: 15px;"><?php echo number_format($row['harga'], 2, ',', '.'); ?></td>
+                        <td style="font-size: 15px;">Rp. <?php echo number_format($row['harga'], 2, ',', '.'); ?></td>
+
+
 
                         <td style="font-size: 14px; text-align: center;">
+                            <!-- Tombol Lihat Lainnya -->
+                            <button
+                                onclick="document.getElementById('detailModal<?= $row['id_hasil_labarugi'] ?>').style.display='block'"
+                                class="w3-button w3-grey w3-round w3-small">
+                                Lihat Lainnya
+                            </button>
                             <a href="#"
-                                onclick="deleteUser('<?php echo htmlspecialchars($row['id_hasil_labarugi']); ?>', '<?php echo htmlspecialchars($row['id_hewan']); ?>')"
+                                onclick="deleteLabarugi('<?php echo htmlspecialchars($row['id_hasil_labarugi']); ?>', '<?php echo htmlspecialchars($row['id_hewan']); ?>')"
                                 class="fa fa-trash w3-btn w3-button w3-round w3-red" style="font-size: 15px;"></a>
                         </td>
                     </tr>
+
+                    <!-- Modal Detail -->
+                    <div id="detailModal<?= $row['id_hasil_labarugi'] ?>" class="w3-modal">
+                        <div class="w3-modal-content w3-card-4 w3-animate-top" style="max-width:600px">
+                            <header class="w3-container w3-center w3-green">
+                                <span
+                                    onclick="document.getElementById('detailModal<?= $row['id_hasil_labarugi'] ?>').style.display='none'"
+                                    class="w3-button w3-display-topright">&times;</span>
+                                <h3>
+                                    <b>Detail Laba Rugi</b>
+                                </h3>
+                            </header>
+                            <div class="w3-container">
+                                <p><strong>ID Laba Rugi:</strong> <?= htmlspecialchars($row['id_hasil_labarugi']); ?></p>
+                                <p><strong>ID Hewan:</strong> <?= htmlspecialchars($row['id_hewan']); ?></p>
+                                <p><strong>Jenis Kelamin:</strong> <?= htmlspecialchars($row['jenis_kelamin']); ?></p>
+                                <p><strong>Jumlah:</strong> <?= htmlspecialchars($row['jumlah']); ?></p>
+                                <p><strong>HPP (Harga Pokok Pembelian):</strong> <?= htmlspecialchars($row['hpp']); ?></p>
+                                <p><strong>Harga:</strong> <?= htmlspecialchars($row['harga']); ?></p>
+                                <p><strong>Tanggal Pembelian:</strong> <?= htmlspecialchars($row['tanggal_pembelian']); ?>
+                                </p>
+                                <p><strong>tanggal Penjualan:</strong> <?= htmlspecialchars($row['tanggal_penjualan']); ?>
+                                </p>
+                                <p><strong>Total Pakan:</strong> <?= htmlspecialchars($row['total_pakan']); ?></p>
+                                <p><strong>Total Perawatan:</strong> <?= htmlspecialchars($row['total_perawatan']); ?></p>
+                                <p><strong>Total Keuntungan:</strong> <?= htmlspecialchars($row['total_keuntungan']); ?></p>
+                                <p><strong>Total Kerugian:</strong> <?= htmlspecialchars($row['total_kerugian']); ?></p>
+                            </div>
+                            <footer class="w3-container">
+                                <button
+                                    onclick="document.getElementById('detailModal<?= $row['id_hasil_labarugi'] ?>').style.display='none'"
+                                    class="w3-button w3-red w3-right">Tutup</button>
+                            </footer>
+                        </div>
+                    </div>
                 <?php endwhile; ?>
             </table>
         </div>
@@ -411,17 +453,17 @@ if ($totalResult) {
                 document.getElementById("sidebarOverlay").classList.remove('show');
             }
 
-            function deletePenjualan(idpenjualan, noNota) {
+            function deleteLabarugi(id_hasil_labarugi) {
                 var modal = document.getElementById('deleteModal');
                 modal.style.display = 'block'; // Display the delete confirmation modal
 
                 var modalMessage = document.getElementById('modalMessage');
-                modalMessage.textContent = "Apakah Anda yakin ingin menghapus penjualan dengan No Nota '" + idpenjualan + "'?";
+                modalMessage.textContent = "Apakah Anda yakin ingin menghapus data ini?";
 
                 var confirmButton = document.getElementById('confirmDeleteButton');
                 confirmButton.onclick = function () {
                     // Redirect to the PHP script for deletion
-                    window.location.href = "list_penjualan.php?action=delete&id=" + encodeURIComponent(idpenjualan);
+                    window.location.href = "hasil_labarugi.php?action=delete&id=" + encodeURIComponent(id_hasil_labarugi);
                 };
             }
 
@@ -433,9 +475,10 @@ if ($totalResult) {
             function searchItems() {
                 let input = document.getElementById('searchInput').value.toLowerCase();
                 let rows = document.querySelectorAll('.barang-row');
+
                 rows.forEach(row => {
-                    let noNota = row.querySelector('td:first-child').innerText.toLowerCase();
-                    if (noNota.includes(input)) {
+                    let rowText = row.innerText.toLowerCase();
+                    if (rowText.includes(input)) {
                         row.style.display = '';
                     } else {
                         row.style.display = 'none';
