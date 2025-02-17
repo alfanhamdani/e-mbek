@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </p>
             <p>
                 <label>Harga</label>
-                <input class="w3-input" type="number" step="0.01" name="harga" value="<?php echo $data['harga']; ?>" required>
+                <input class="w3-input" type="number" step="0.01" name="harga" value="<?php echo $data['harga_pakan']; ?>" required>
             </p>
             <p>
                 <label>Tanggal</label>

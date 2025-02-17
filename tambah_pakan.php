@@ -4,12 +4,12 @@ include "koneksi.php";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $jenis_pakan = $_POST["jenis_pakan"];
     $berat = $_POST["berat"];
-    $harga = $_POST["harga"];
+    $harga_pakan = $_POST["harga_pakan"];
     $tanggal = $_POST["tanggal"];
     $user_record = "admin";
 
-    $sql = "INSERT INTO mbek_pakan (jenis_pakan, berat, harga, tanggal, date_record, user_record) 
-            VALUES ('$jenis_pakan', $berat, $harga, '$tanggal', NOW(), '$user_record')";
+    $sql = "INSERT INTO mbek_pakan (jenis_pakan, berat, harga_pakan, tanggal, date_record, user_record) 
+            VALUES ('$jenis_pakan', $berat, $harga_pakan, '$tanggal', NOW(), '$user_record')";
     if ($conn->query($sql)) {
         header("Location: daftar_pakan.php");
     } else {
@@ -38,8 +38,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input class="w3-input" type="number" name="berat" required>
             </p>
             <p>
-                <label>Harga</label>
-                <input class="w3-input" type="number" step="0.01" name="harga" required>
+                <label>harga_pakan</label>
+                <input class="w3-input" type="number" step="0.01" name="harga_pakan" required>
             </p>
             <p>
                 <label>Tanggal</label>

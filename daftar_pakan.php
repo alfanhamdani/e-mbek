@@ -30,7 +30,7 @@ $result = $conn->query("SELECT * FROM mbek_pakan ORDER BY date_record DESC");
                 <tr>
                     <td><?php echo $row["jenis_pakan"]; ?></td>
                     <td><?php echo $row["berat"]; ?></td>
-                    <td>Rp. <?php echo number_format($row["harga"], 2, ',', '.'); ?></td>
+                    <td>Rp. <?php echo number_format($row["harga_pakan"], 2, ',', '.'); ?></td>
                     <td><?php echo $row["tanggal"]; ?></td>
                     <td>
     <a class="w3-button w3-blue" href="edit_pakan.php?jenis_pakan=<?php echo urlencode($row['jenis_pakan']); ?>">Edit</a>
