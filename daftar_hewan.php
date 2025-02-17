@@ -11,16 +11,16 @@ if (!isset($_SESSION['username'])) {
 $username = $_SESSION['username']; // Ambil username pengguna dari sesi
 
 // Query untuk mengambil data pengguna berdasarkan username
-$query = "SELECT * FROM mbek_pengguna WHERE username = '$username'";
-$result = mysqli_query($conn, $query);
+$queryUser = "SELECT * FROM mbek_pengguna WHERE username = '$username'";
+$resultUser = mysqli_query($conn, $queryUser);
 
-if (!$result) {
+if (!$resultUser) {
     die("Query error: " . mysqli_error($conn));
 }
 
 // Ambil data pengguna
-if (mysqli_num_rows($result) > 0) {
-    $mbek_pengguna = mysqli_fetch_assoc($result);
+if (mysqli_num_rows($resultUser) > 0) {
+    $mbek_pengguna = mysqli_fetch_assoc($resultUser);
     $user_record = $mbek_pengguna['username']; // Ambil nilai username dari pengguna
 } else {
     // Handle jika tidak ada data pengguna yang ditemukan
@@ -30,51 +30,39 @@ if (mysqli_num_rows($result) > 0) {
 // Handle pencarian
 $search_keyword = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
-// Query untuk menghitung total jumlah pengguna dengan pencarian
-$sql_count = "SELECT COUNT(username) AS total FROM mbek_pengguna 
-              WHERE username != 'admin' AND (username LIKE '%$search_keyword%' OR nama LIKE '%$search_keyword%')";
-$result_count = mysqli_query($conn, $sql_count);
-$row_count = mysqli_fetch_assoc($result_count);
-$total_records = $row_count['total'];
+// Query untuk menghitung total jumlah hewan dengan pencarian
+$sql_total_hewan = "SELECT COUNT(*) AS total_hewan FROM mbek_hewan WHERE id_hewan LIKE '%$search_keyword%'";
+$result_total = mysqli_query($conn, $sql_total_hewan);
 
-// Jumlah pengguna per halaman
+if ($result_total) {
+    $data_total = mysqli_fetch_assoc($result_total);
+    $totalHewan = $data_total['total_hewan'];
+} else {
+    $totalHewan = 0; // Fallback jika terjadi kesalahan
+}
+
+// Jumlah hewan per halaman
 $records_per_page = 10;
 
 // Menghitung jumlah halaman
-$total_pages = ceil($total_records / $records_per_page);
+$total_pages = ceil($totalHewan / $records_per_page);
 
 // Mendapatkan halaman saat ini
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+if ($page < 1) {
+    $page = 1;
+}
 
 // Menghitung offset untuk query SQL
 $offset = ($page - 1) * $records_per_page;
 
-// Query untuk mengambil data pengguna dengan pencarian dan pagination
-$sql = "SELECT * FROM mbek_pengguna 
-        WHERE username != 'admin' AND (username LIKE '%$search_keyword%' OR nama LIKE '%$search_keyword%') 
-        ORDER BY username DESC 
-        LIMIT $offset, $records_per_page";
-$result = mysqli_query($conn, $sql);
-
-// Query untuk mendapatkan total jumlah pengguna (tidak termasuk admin)
-$totalQuery = "SELECT COUNT(*) AS total_hewan FROM mbek_hewan WHERE id_hewan != 'admin'";
-$totalResult = mysqli_query($conn, $totalQuery);
-
-if ($totalResult) {
-    $totalData = mysqli_fetch_assoc($totalResult);
-    $totalHewan = $totalData['total_hewan'];
-} else {
-    $totalHewan = 0; // Fallback jika terjadi kesalahan
-}
-// Ambil data dari database
-$query = "SELECT * FROM mbek_hewan WHERE id_hewan LIKE '%$search_keyword%' ORDER BY date_record DESC";
-
-$result = mysqli_query($conn, $query);
+// Query untuk mengambil data hewan dengan pencarian dan pagination
+$queryHewan = "SELECT * FROM mbek_hewan WHERE id_hewan LIKE '%$search_keyword%' ORDER BY date_record DESC LIMIT $offset, $records_per_page";
+$result = mysqli_query($conn, $queryHewan);
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -272,39 +260,42 @@ $result = mysqli_query($conn, $query);
             }
         </style>
 
-        <!-- Kotak Pencarian -->
-        <div style="display: flex; justify-content: center; margin: 20px;">
-            <form method="GET" action="" style="width: 100%; max-width: 600px; display: flex; position: relative;">
-                <!-- Input Field -->
-                <input type="text" name="search" id="searchInput" class="w3-input w3-border"
-                    placeholder="Cari nama hewan..."
-                    value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" style="width: 100%; padding: 12px 20px; padding-right: 60px; border-radius: 50px; 
+     <!-- Kotak Pencarian -->
+<div style="display: flex; justify-content: center; margin: 20px;">
+    <form method="GET" action="" style="width: 100%; max-width: 600px; display: flex; position: relative;">
+        <!-- Input Field -->
+        <input type="text" name="search" id="searchInput" class="w3-input w3-border" 
+            placeholder="Cari id hewan..." 
+            value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>"
+            style="width: 100%; padding: 12px 20px; padding-right: 60px; border-radius: 50px; 
                    border: 2px solid #ddd; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); font-size: 16px;">
 
-                <!-- Tombol "Cari" -->
-                <button type="submit" class="w3-button w3-green" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); height: 40px; width: 40px; 
+        <!-- Tombol "Cari" -->
+        <button type="submit" class="w3-button w3-green"
+            style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); height: 40px; width: 40px; 
                    border-radius: 50%; border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); cursor: pointer; 
                    display: flex; align-items: center; justify-content: center;">
-                    <i class="fa fa-search" style="font-size: 18px;"></i>
-                </button>
-            </form>
-        </div>
+            <i class="fa fa-search" style="font-size: 18px;"></i>
+        </button>
+    </form>
+</div>
 
 
         <!-- Total users -->
         <div style="font-size: 15px; text-align: right; padding-right: 30px;">
             <span class="w3-bar-item">Total: <?php echo $totalHewan; ?> hewan</span>
         </div>
-
-        <!-- Table of Users -->
-        <div class="w3-responsive">
+            
+            <!-- Table of Users -->
+            <div class="w3-responsive">
             <table class="w3-table-all w3-centered" border="1" style="border-collapse: collapse; width: 100%;">
                 <tr class="w3-green">
-                    <th>Id hewan</th>
-                    <th>Jenis Kelamin</th>
-                    <th>Jumlah</th>
-                    <th>Harga</th>
-                    <th>Tanggal</th>
+                <th>Id hewan</th>
+               
+                <th>Jenis Kelamin</th>
+                <th>Jumlah</th>
+                <th>Harga</th>
+                <th>Tanggal</th>
                     <?php if ($user_record === 'admin') { ?>
                         <th>Aksi</th>
                     <?php } ?>
@@ -312,6 +303,7 @@ $result = mysqli_query($conn, $query);
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
                     <tr class="hewan-row">
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['id_hewan']); ?></td>
+                     
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jenis_kelamin']); ?></td>
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jumlah']); ?></td>
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['harga']); ?></td>
@@ -348,9 +340,8 @@ $result = mysqli_query($conn, $query);
             <!-- Next Button -->
             <a href="?page=<?php echo min($total_pages, $page + 1); ?>" class="pagination-button">&raquo;</a>
         </div>
-
-        <!-- CSS Styles for Pagination with Slightly Rectangular Corners -->
-        <style>
+  <!-- CSS Styles for Pagination with Slightly Rectangular Corners -->
+  <style>
             .pagination-container {
                 display: flex;
                 align-items: center;
@@ -389,7 +380,6 @@ $result = mysqli_query($conn, $query);
                 outline: none;
             }
         </style>
-
         <!-- Add New User Button -->
         <?php if ($user_record === 'admin') { ?>
             <a href="tambah_hewan.php" class="w3-btn w3-round-xlarge w3-green bottom-right">
@@ -411,18 +401,18 @@ $result = mysqli_query($conn, $query);
             }
 
             function deleteHewan(id_hewan) {
-                var modal = document.getElementById('deleteModal');
-                modal.style.display = 'block'; // Tampilkan modal konfirmasi
+    var modal = document.getElementById('deleteModal');
+    modal.style.display = 'block'; // Tampilkan modal konfirmasi
 
-                var modalMessage = modal.querySelector('p');
-                modalMessage.textContent = "Apakah Anda yakin ingin menghapus hewan '" + id_hewan + "'?";
+    var modalMessage = modal.querySelector('p');
+    modalMessage.textContent = "Apakah Anda yakin ingin menghapus hewan '" + id_hewan + "'?";
 
-                // Simpan nama hewan yang akan dihapus di button 'Hapus'
-                var confirmButton = modal.querySelector('.w3-button.w3-red');
-                confirmButton.onclick = function () {
-                    window.location.href = "hapus_hewan.php?id_hewan=" + encodeURIComponent(id_hewan);
-                };
-            }
+    // Simpan nama hewan yang akan dihapus di button 'Hapus'
+    var confirmButton = modal.querySelector('.w3-button.w3-red');
+    confirmButton.onclick = function () {
+        window.location.href = "hapus_hewan.php?id_hewan=" + encodeURIComponent(id_hewan);
+    };
+}
 
             function searchItems() {
                 var input, filter, table, tr, td, i, txtValue;
@@ -452,3 +442,5 @@ $result = mysqli_query($conn, $query);
 </html>
 
 <?php mysqli_close($conn); ?>
+
+  

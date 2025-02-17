@@ -2,18 +2,19 @@
 include "koneksi.php";
 
 // Validasi dan sanitasi input
-if (!isset($_GET["jenis_pakan"])) {
+if (!isset($_GET["id_pakan"])) {
     die("Jenis pakan tidak ditemukan.");
 }
-$jenis_pakan = $conn->real_escape_string($_GET["jenis_pakan"]);
+$id_pakan = $conn->real_escape_string($_GET["id_pakan"]);
 
 // Ambil data dari database
-$data = $conn->query("SELECT * FROM mbek_pakan WHERE jenis_pakan='$jenis_pakan'")->fetch_assoc();
+$data = $conn->query("SELECT * FROM mbek_pakan WHERE id_pakan='$id_pakan'")->fetch_assoc();
 if (!$data) {
     die("Data pakan tidak ditemukan.");
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $id_pakan = $conn->real_escape_string($_POST["id_pakan"]);
     $jenis_pakan = $conn->real_escape_string($_POST["jenis_pakan"]);
     $berat = intval($_POST["berat"]);
     $harga = floatval($_POST["harga"]);
