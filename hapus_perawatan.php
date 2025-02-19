@@ -1,18 +1,20 @@
 <?php
-include "koneksi.php";
+include 'koneksi.php';
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (!isset($_POST["jenis_pakan"]) || empty($_POST["jenis_pakan"])) {
-        die("Jenis perawatan tidak ditemukan.");
-    }
-    $jenis_pakan = $conn->real_escape_string($_POST["jenis_pakan"]);
+// Pastikan parameter 'id_perawatan' ada
+if (isset($_GET['id_perawatan'])) {
+    $id_perawatan = intval($_GET['id_perawatan']); // Pastikan hanya angka untuk keamanan
 
-    $sql = "DELETE FROM mbek_pakan WHERE jenis_pakan='$jenis_pakan'";
-    if ($conn->query($sql)) {
-        header("Location: daftar_perawatan.php?status=sukses_hapus");
+    // Perbaiki query dengan tanda kutip yang benar
+    $query = "DELETE FROM mbek_perawatan WHERE id_perawatan = '$id_perawatan'";
+
+    if (mysqli_query($conn, $query)) {
+        header('Location: daftar_perawatan.php?status=success');
         exit;
     } else {
-        echo "Error: " . $conn->error;
+        echo "Error: " . mysqli_error($conn);
     }
+} else {
+    echo "Parameter 'id_perawatan' tidak ditemukan!";
 }
 ?>

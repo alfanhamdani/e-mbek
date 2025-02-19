@@ -5,8 +5,8 @@ include 'koneksi.php';
 if (isset($_GET['id_hewan'])) {
     $id_hewan = intval($_GET['id_hewan']); // Pastikan hanya angka untuk keamanan
 
-    // Perbaiki query dengan tanda kutip yang benar
-    $query = "DELETE FROM mbek_hewan WHERE id_hewan = '$id_hewan'"; 
+    // Update nilai void menjadi 1
+    $query = "UPDATE mbek_hewan SET void = 1 WHERE id_hewan = '$id_hewan'";
 
     if (mysqli_query($conn, $query)) {
         header('Location: daftar_hewan.php?status=success');
