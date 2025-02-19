@@ -1,11 +1,15 @@
 <?php
-include 'koneksi.php';
-session_start();
+include 'koneksi.php'; // Sertakan file koneksi ke database
 
-if (!isset($_SESSION["username"])) {
-    header('Location: index.php');
+session_start(); // Mulai sesi untuk mengakses informasi sesi pengguna
+
+// Pastikan pengguna telah login sebelumnya
+if (!isset($_SESSION['username'])) {
+    header('Location: index.php'); // Redirect jika pengguna belum login
     exit;
 }
+
+$username = $_SESSION['username']; // Ambil username pengguna dari sesi
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
@@ -50,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html>
 
 <head>
-    <title>tambah pengguna</title>
+    <title>Tambah Pengguna</title>
     <link rel="stylesheet" href="w3.css">
     <link rel="icon" href="logo e-mbek.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -115,11 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .w3-sidebar-overlay.show {
             display: block;
         }
-
-        .nav {
-            background-color: hsl(214, 57%, 51%);
-            color: white;
-        }
     </style>
 </head>
 
@@ -136,7 +135,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <a href="daftar_pakan.php" class="w3-bar-item w3-button w3-border">Daftar Pakan</a>
         <a href="daftar_perawatan.php" class="w3-bar-item w3-button w3-border">Daftar Perawatan</a>
         <a href="hasil_labarugi.php" class="w3-bar-item w3-button w3-border">Hasil Laba Rugi</a>
-        <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
+        <?php if ($username === 'admin') { ?>
+            <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
+        <?php } ?>
         <a href="logout.php" class="w3-bar-item w3-button w3-red w3-center"><b>Log Out </b><i class="fa fa-sign-out"
                 style="font-size:20px"></i></a>
     </div>

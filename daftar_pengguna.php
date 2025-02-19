@@ -85,7 +85,7 @@ if ($totalResult) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>list pengguna</title>
+    <title>Daftar Pengguna</title>
     <link rel="stylesheet" href="w3.css">
     <link rel="icon" href="logo e-mbek.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -222,7 +222,7 @@ if ($totalResult) {
         <a href="daftar_pakan.php" class="w3-bar-item w3-button w3-border">Daftar Pakan</a>
         <a href="daftar_perawatan.php" class="w3-bar-item w3-button w3-border">Daftar Perawatan</a>
         <a href="hasil_labarugi.php" class="w3-bar-item w3-button w3-border">Hasil Laba Rugi</a>
-        <?php if ($user_record === 'admin') { ?>
+        <?php if ($username === 'admin') { ?>
             <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
         <?php } ?>
         <a href="logout.php" class="w3-bar-item w3-button w3-red w3-center"><b>Log Out </b><i class="fa fa-sign-out"

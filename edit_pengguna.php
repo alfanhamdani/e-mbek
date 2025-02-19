@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html>
 
 <head>
-    <title>edit pengguna</title>
+    <title>Edit Pengguna</title>
     <link rel="stylesheet" href="w3.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -184,7 +184,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <a href="daftar_pakan.php" class="w3-bar-item w3-button w3-border">Daftar Pakan</a>
         <a href="daftar_perawatan.php" class="w3-bar-item w3-button w3-border">Daftar Perawatan</a>
         <a href="hasil_labarugi.php" class="w3-bar-item w3-button w3-border">Hasil Laba Rugi</a>
-        <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
+        <?php if ($username === 'admin') { ?>
+            <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
+        <?php } ?>
         <a href="logout.php" class="w3-bar-item w3-button w3-red w3-center"><b>Log Out </b><i class="fa fa-sign-out"
                 style="font-size:20px"></i></a>
     </div>
