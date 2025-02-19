@@ -46,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="icon" href="logo e-mbek.png">
+    <title>Edit Hewan</title>
     <style>
         .w3-sidebar {
             z-index: 1100;
@@ -182,7 +183,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="daftar_pakan.php" class="w3-bar-item w3-button w3-border">Daftar Pakan</a>
         <a href="daftar_perawatan.php" class="w3-bar-item w3-button w3-border">Daftar Perawatan</a>
         <a href="hasil_labarugi.php" class="w3-bar-item w3-button w3-border">Hasil Laba Rugi</a>
-        <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
+        <?php if ($username === 'admin') { ?>
+            <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
+        <?php } ?>
         <a href="logout.php" class="w3-bar-item w3-button w3-red w3-center"><b>Log Out </b><i class="fa fa-sign-out"
                 style="font-size:20px"></i></a>
     </div>
@@ -193,7 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
             <h3
                 style="margin: 0; line-height: 1.5rem; text-align: center; font-size: 25px; margin-top:5px; margin-bottom: 10px;">
-                <b>Edit Pengguna</b>
+                <b>Edit Hewan</b>
             </h3>
         </div>
     </div>
@@ -288,15 +291,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
 
 
+        // pesan untuk inputan yang tidak di isi/kosong
         document.addEventListener("DOMContentLoaded", function () {
-            var inputs = document.querySelectorAll('input[required]');
+            var inputs = document.querySelectorAll('input[required], select[required]'); // Tambahkan select[required]
+
             inputs.forEach(input => {
                 input.addEventListener('invalid', function (event) {
                     event.preventDefault();
-                    // Custom validation message
                     let message = "Mohon diisi, tidak boleh kosong";
                     input.setCustomValidity(message);
-                    // Display the message
+
                     if (input.validity.valueMissing) {
                         input.reportValidity();
                     }
@@ -305,6 +309,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 input.addEventListener('input', function () {
                     input.setCustomValidity(""); // Reset custom message on input
                 });
+
+                // Untuk select, gunakan event change agar reset bekerja saat pengguna memilih opsi
+                if (input.tagName === "SELECT") {
+                    input.addEventListener('change', function () {
+                        input.setCustomValidity("");
+                    });
+                }
             });
         });
     </script>
