@@ -178,15 +178,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.getElementById("sidebarOverlay").classList.remove("show");
         }
 
+        // pesan untuk inputan yang tidak di isi/kosong
         document.addEventListener("DOMContentLoaded", function () {
-            var inputs = document.querySelectorAll('input[required]');
+            var inputs = document.querySelectorAll('input[required], select[required]'); // Tambahkan select[required]
+
             inputs.forEach(input => {
                 input.addEventListener('invalid', function (event) {
                     event.preventDefault();
-                    // Custom validation message
                     let message = "Mohon diisi, tidak boleh kosong";
                     input.setCustomValidity(message);
-                    // Display the message
+
                     if (input.validity.valueMissing) {
                         input.reportValidity();
                     }
@@ -195,6 +196,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 input.addEventListener('input', function () {
                     input.setCustomValidity(""); // Reset custom message on input
                 });
+
+                // Untuk select, gunakan event change agar reset bekerja saat pengguna memilih opsi
+                if (input.tagName === "SELECT") {
+                    input.addEventListener('change', function () {
+                        input.setCustomValidity("");
+                    });
+                }
             });
         });
     </script>

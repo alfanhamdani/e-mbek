@@ -10,23 +10,6 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username']; // Ambil username pengguna dari sesi
 
-// Query untuk mengambil data pengguna berdasarkan username
-$queryUser = "SELECT * FROM mbek_pengguna WHERE username = '$username'";
-$resultUser = mysqli_query($conn, $queryUser);
-
-if (!$resultUser) {
-    die("Query error: " . mysqli_error($conn));
-}
-
-// Ambil data pengguna
-if (mysqli_num_rows($resultUser) > 0) {
-    $mbek_pengguna = mysqli_fetch_assoc($resultUser);
-    $user_record = $mbek_pengguna['username']; // Ambil nilai username dari pengguna
-} else {
-    // Handle jika tidak ada data pengguna yang ditemukan
-    $user_record = ''; // Atau sesuaikan dengan logika penanganan kesalahan
-}
-
 // Handle pencarian
 $search_keyword = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
@@ -57,16 +40,17 @@ if ($page < 1) {
 $offset = ($page - 1) * $records_per_page;
 
 // Query untuk mengambil data hewan dengan pencarian dan pagination
-$queryHewan = "SELECT * FROM mbek_hewan WHERE id_hewan LIKE '%$search_keyword%' ORDER BY date_record DESC LIMIT $offset, $records_per_page";
+$queryHewan = "SELECT * FROM mbek_hewan WHERE id_hewan LIKE '%$search_keyword%' ORDER BY jenis_kelamin DESC LIMIT $offset, $records_per_page";
 $result = mysqli_query($conn, $queryHewan);
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>list Hewan</title>
+    <title>Daftar Hewan</title>
     <link rel="stylesheet" href="w3.css">
     <link rel="icon" href="logo e-mbek.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -203,7 +187,7 @@ $result = mysqli_query($conn, $queryHewan);
         <a href="daftar_pakan.php" class="w3-bar-item w3-button w3-border">Daftar Pakan</a>
         <a href="daftar_perawatan.php" class="w3-bar-item w3-button w3-border">Daftar Perawatan</a>
         <a href="hasil_labarugi.php" class="w3-bar-item w3-button w3-border">Hasil Laba Rugi</a>
-        <?php if ($user_record === 'admin') { ?>
+        <?php if ($username === 'admin') { ?>
             <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
         <?php } ?>
         <a href="logout.php" class="w3-bar-item w3-button w3-red w3-center"><b>Log Out </b><i class="fa fa-sign-out"
@@ -217,7 +201,7 @@ $result = mysqli_query($conn, $queryHewan);
             <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
                 <h3
                     style="margin: 0; line-height: 1.5rem; text-align: center; font-size: 25px; margin-top:5px; margin-bottom: 10px;">
-                    <b>Daftar hewan</b>
+                    <b>Daftar Hewan</b>
                 </h3>
             </div>
         </div>
@@ -232,7 +216,7 @@ $result = mysqli_query($conn, $queryHewan);
                     <h2>Konfirmasi</h2>
                 </header>
                 <div class="w3-container">
-                    <p>Apakah Anda yakin ingin menghapus nama hewan ini?</p>
+                    <p>Apakah Anda yakin ingin menghapus hewan ini?</p>
                     <div class="w3-right">
                         <button class="w3-button w3-grey"
                             onclick="document.getElementById('deleteModal').style.display='none'">Batal</button>
@@ -260,67 +244,87 @@ $result = mysqli_query($conn, $queryHewan);
             }
         </style>
 
-     <!-- Kotak Pencarian -->
-<div style="display: flex; justify-content: center; margin: 20px;">
-    <form method="GET" action="" style="width: 100%; max-width: 600px; display: flex; position: relative;">
-        <!-- Input Field -->
-        <input type="text" name="search" id="searchInput" class="w3-input w3-border" 
-            placeholder="Cari id hewan..." 
-            value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>"
-            style="width: 100%; padding: 12px 20px; padding-right: 60px; border-radius: 50px; 
+        <!-- Kotak Pencarian -->
+        <div style="display: flex; justify-content: center; margin: 20px;">
+            <form method="GET" action="" style="width: 100%; max-width: 600px; display: flex; position: relative;">
+                <!-- Input Field -->
+                <input type="text" name="search" id="searchInput" class="w3-input w3-border"
+                    placeholder="Cari id hewan..."
+                    value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" style="width: 100%; padding: 12px 20px; padding-right: 60px; border-radius: 50px; 
                    border: 2px solid #ddd; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); font-size: 16px;">
 
-        <!-- Tombol "Cari" -->
-        <button type="submit" class="w3-button w3-green"
-            style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); height: 40px; width: 40px; 
+                <!-- Tombol "Cari" -->
+                <button type="submit" class="w3-button w3-green" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); height: 40px; width: 40px; 
                    border-radius: 50%; border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); cursor: pointer; 
                    display: flex; align-items: center; justify-content: center;">
-            <i class="fa fa-search" style="font-size: 18px;"></i>
-        </button>
-    </form>
-</div>
+                    <i class="fa fa-search" style="font-size: 18px;"></i>
+                </button>
+            </form>
+        </div>
 
 
         <!-- Total users -->
         <div style="font-size: 15px; text-align: right; padding-right: 30px;">
-            <span class="w3-bar-item">Total: <?php echo $totalHewan; ?> hewan</span>
+            <span class="w3-bar-item">Total: <?php echo $totalHewan; ?> Hewan</span>
         </div>
-            
-            <!-- Table of Users -->
-            <div class="w3-responsive">
+
+        <!-- Table of Users -->
+        <div class="w3-responsive">
             <table class="w3-table-all w3-centered" border="1" style="border-collapse: collapse; width: 100%;">
                 <tr class="w3-green">
-                <th>Id hewan</th>
-               
-                <th>Jenis Kelamin</th>
-                <th>Jumlah</th>
-                <th>Harga</th>
-                <th>Tanggal</th>
-                    <?php if ($user_record === 'admin') { ?>
-                        <th>Aksi</th>
-                    <?php } ?>
+                    <th>ID Hewan</th>
+                    <th>Jenis Kelamin</th>
+                    <th>Harga</th>
+                    <th>Aksi</th>
                 </tr>
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
                     <tr class="hewan-row">
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['id_hewan']); ?></td>
-                     
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jenis_kelamin']); ?></td>
-                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jumlah']); ?></td>
-                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['harga']); ?></td>
-                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['tanggal']); ?></td>
-                        <?php if ($user_record === 'admin') { ?>
-                            <td style="font-size: 14px; text-align: center;">
-                                <a href="edit_hewan.php?id_hewan=<?php echo $row['id_hewan']; ?>"
-                                    class="material-icons w3-yellow w3-btn w3-button w3-round"
-                                    style="font-size: 15px;">&#xe22b;</a>
-                            <?php } ?>
-                            <?php if ($user_record === 'admin') { ?>
-                                <a href="#"
-                                    onclick="deleteHewan('<?php echo htmlspecialchars($row['id_hewan']); ?>', '<?php echo htmlspecialchars($row['id_hewan']); ?>')"
-                                    class="fa fa-trash w3-btn w3-button w3-round w3-red" style="font-size: 15px;"></a>
-                            <?php } ?>
+                        <td style="font-size: 15px;">Rp. <?php echo number_format($row['harga'], 0, ',', '.'); ?></td>
+                        <td style="font-size: 14px; text-align: center;">
+                            <!-- Tombol Lihat Lainnya -->
+                            <button
+                                onclick="document.getElementById('detailModal<?= $row['id_hewan'] ?>').style.display='block'"
+                                class="w3-button w3-grey w3-round w3-small">
+                                Lihat Lainnya
+                            </button>
+                            <a href="edit_hewan.php?id_hewan=<?php echo $row['id_hewan']; ?>"
+                                class="material-icons w3-yellow w3-btn w3-button w3-round"
+                                style="font-size: 15px;">&#xe22b;</a>
+                            <a href="#"
+                                onclick="deleteHewan('<?php echo htmlspecialchars($row['id_hewan']); ?>', '<?php echo htmlspecialchars($row['id_hewan']); ?>')"
+                                class="fa fa-trash w3-btn w3-button w3-round w3-red" style="font-size: 15px;"></a>
                         </td>
                     </tr>
+
+                    <!-- Modal Detail -->
+                    <div id="detailModal<?= $row['id_hewan'] ?>" class="w3-modal">
+                        <div class="w3-modal-content w3-card-4 w3-animate-top" style="max-width:600px">
+                            <header class="w3-container w3-center w3-green">
+                                <span
+                                    onclick="document.getElementById('detailModal<?= $row['id_hewan'] ?>').style.display='none'"
+                                    class="w3-button w3-display-topright">&times;</span>
+                                <h3>
+                                    <b>Detail Pakan</b>
+                                </h3>
+                            </header>
+                            <div class="w3-container">
+                                <p><strong>ID Hewan:</strong> <?= htmlspecialchars($row['id_hewan']); ?></p>
+                                <p><strong>Jenis Kelamin:</strong> <?= htmlspecialchars($row['jenis_kelamin']); ?></p>
+                                <p><strong>Jumlah:</strong> <?= htmlspecialchars($row['jumlah']); ?></p>
+                                <p><strong>Harga:</strong> Rp.
+                                    <?= number_format($row['harga'], 0, ',', '.'); ?>
+                                </p>
+                                <p><strong>Tanggal:</strong> <?= htmlspecialchars($row['tanggal']); ?></p>
+                            </div>
+                            <footer class="w3-container">
+                                <button
+                                    onclick="document.getElementById('detailModal<?= $row['id_hewan'] ?>').style.display='none'"
+                                    class="w3-button w3-red w3-right">Tutup</button>
+                            </footer>
+                        </div>
+                    </div>
                 <?php } ?>
             </table>
         </div>
@@ -340,8 +344,8 @@ $result = mysqli_query($conn, $queryHewan);
             <!-- Next Button -->
             <a href="?page=<?php echo min($total_pages, $page + 1); ?>" class="pagination-button">&raquo;</a>
         </div>
-  <!-- CSS Styles for Pagination with Slightly Rectangular Corners -->
-  <style>
+        <!-- CSS Styles for Pagination with Slightly Rectangular Corners -->
+        <style>
             .pagination-container {
                 display: flex;
                 align-items: center;
@@ -380,13 +384,11 @@ $result = mysqli_query($conn, $queryHewan);
                 outline: none;
             }
         </style>
-        <!-- Add New User Button -->
-        <?php if ($user_record === 'admin') { ?>
-            <a href="tambah_hewan.php" class="w3-btn w3-round-xlarge w3-green bottom-right">
-                <i class="fa fa-plus" style="font-size:30px"></i>
-            </a>
-        <?php } ?>
 
+        <!-- tombol untuk nambah -->
+        <a href="tambah_hewan.php" class="w3-btn w3-round-xlarge w3-green bottom-right">
+            <i class="fa fa-plus" style="font-size:30px"></i>
+        </a>
 
         <!-- JavaScript -->
         <script>
@@ -401,18 +403,18 @@ $result = mysqli_query($conn, $queryHewan);
             }
 
             function deleteHewan(id_hewan) {
-    var modal = document.getElementById('deleteModal');
-    modal.style.display = 'block'; // Tampilkan modal konfirmasi
+                var modal = document.getElementById('deleteModal');
+                modal.style.display = 'block'; // Tampilkan modal konfirmasi
 
-    var modalMessage = modal.querySelector('p');
-    modalMessage.textContent = "Apakah Anda yakin ingin menghapus hewan '" + id_hewan + "'?";
+                var modalMessage = modal.querySelector('p');
+                modalMessage.textContent = "Apakah Anda yakin ingin menghapus hewan ini?";
 
-    // Simpan nama hewan yang akan dihapus di button 'Hapus'
-    var confirmButton = modal.querySelector('.w3-button.w3-red');
-    confirmButton.onclick = function () {
-        window.location.href = "hapus_hewan.php?id_hewan=" + encodeURIComponent(id_hewan);
-    };
-}
+                // Simpan nama hewan yang akan dihapus di button 'Hapus'
+                var confirmButton = modal.querySelector('.w3-button.w3-red');
+                confirmButton.onclick = function () {
+                    window.location.href = "hapus_hewan.php?id_hewan=" + encodeURIComponent(id_hewan);
+                };
+            }
 
             function searchItems() {
                 var input, filter, table, tr, td, i, txtValue;
@@ -442,5 +444,3 @@ $result = mysqli_query($conn, $queryHewan);
 </html>
 
 <?php mysqli_close($conn); ?>
-
-  
