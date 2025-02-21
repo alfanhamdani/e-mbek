@@ -2,13 +2,12 @@
 include 'koneksi.php';
 session_start();
 
-// Pastikan pengguna telah login sebelumnya
 if (!isset($_SESSION['username'])) {
-    header('Location: index.php'); // Redirect jika pengguna belum login
+    header('Location: index.php');
     exit;
 }
 
-$username = $_SESSION['username']; // Ambil username pengguna dari sesi
+$username = $_SESSION['username'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $jenis_kelamin = $_POST['jenis_kelamin'];
@@ -18,10 +17,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_record = $username;
     $date_record = date('Y-m-d H:i:s');
 
-    // Query insert data
-    $query = "INSERT INTO mbek_hewan (jenis_kelamin, jumlah, harga, tanggal, date_record, user_record) 
-              VALUES ('$jenis_kelamin', $jumlah, $harga, '$tanggal', '$date_record', '$user_record')";
+    $image_path = ""; // Default jika tidak ada gambar yang diunggah
+
+    // Cek apakah ada file yang diunggah
+    if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] == 0) {
+        $target_dir = "uploads/";
+        
+        // Pastikan folder uploads ada
+        if (!is_dir($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+
+        $image_name = time() . "_" . basename($_FILES["gambar"]["name"]);
+        $target_file = $target_dir . $image_name;
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+        // Hanya izinkan format gambar tertentu
+        $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+        if (in_array($imageFileType, $allowed_types)) {
+            if (move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file)) {
+                $image_path = $target_file;
+            } else {
+                die("Error: Gagal mengupload file!");
+            }
+        } else {
+            die("Format gambar tidak didukung! Hanya JPG, JPEG, PNG, dan GIF.");
+        }
+    }
+
+    // Simpan data ke database
+    $query = "INSERT INTO mbek_hewan (jenis_kelamin, jumlah, harga, tanggal, date_record, user_record, gambar) 
+              VALUES ('$jenis_kelamin', $jumlah, $harga, '$tanggal', '$date_record', '$user_record', '$image_path')";
+
     if (mysqli_query($conn, $query)) {
+        $id_hewan = mysqli_insert_id($conn);
+
+        // Buat link QR
+        $qr_link = "http://localhost/e-mbek/show.php?id_hewan=" . $id_hewan;
+
+        // Simpan QR link ke database
+        $query_qr = "UPDATE mbek_hewan SET qr_link='$qr_link' WHERE id_hewan=$id_hewan";
+        mysqli_query($conn, $query_qr);
+
         header('Location: daftar_hewan.php');
         exit;
     } else {
@@ -29,6 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
+
+
 
 <!DOCTYPE html>
 <html lang="id">
@@ -134,7 +174,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="w3-container w3-padding-16">
-        <form action="" method="post" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+    <form action="" method="post" enctype="multipart/form-data" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+
             <label>Jenis Kelamin</label>
             <select class="w3-input w3-border" name="jenis_kelamin" required>
                 <option value="">Pilih jenis kelamin</option>
@@ -148,6 +189,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 oninput="formatRibuan(this)"></label><br>
             <label>Tanggal</label>
             <input type="date" class="w3-input w3-border" name="tanggal" required><br>
+            <label>Upload Gambar</label>
+            <input type="file" class="w3-input w3-border" name="gambar" accept="image/*">
+
+
             <div class="w3-half">
                 <a href="daftar_hewan.php" class="w3-gray w3-button w3-container w3-padding-16"
                     style="width: 100%;">Kembali</a>

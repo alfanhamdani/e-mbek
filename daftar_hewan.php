@@ -275,6 +275,8 @@ $result = mysqli_query($conn, $queryHewan);
                     <th>ID Hewan</th>
                     <th>Jenis Kelamin</th>
                     <th>Harga</th>
+                    <th>QR Code</th>
+                    <th>image</th>
                     <th>Aksi</th>
                 </tr>
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
@@ -282,6 +284,12 @@ $result = mysqli_query($conn, $queryHewan);
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['id_hewan']); ?></td>
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jenis_kelamin']); ?></td>
                         <td style="font-size: 15px;">Rp. <?php echo number_format($row['harga'], 0, ',', '.'); ?></td>
+                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['qr_link']); ?></td>
+                        <td>
+                        <img src="<?php echo htmlspecialchars($row['gambar']); ?>" alt="Gambar Hewan"
+                        style="width: 100px; height: auto;">
+</td>
+
                         <td style="font-size: 14px; text-align: center;">
                             <!-- Tombol Lihat Lainnya -->
                             <button
