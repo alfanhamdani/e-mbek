@@ -14,7 +14,7 @@
     <script>
         function onScanSuccess(decodedText, decodedResult) {
             document.getElementById('result').innerText = "QR Code ditemukan: " + decodedText;
-            window.location.href = 'scan_qr_redirect.php?id_hewan=' + decodedText;
+            window.location.href = 'show.php?id_hewan=' + decodedText;
         }
 
         function onScanFailure(error) {
@@ -28,3 +28,5 @@
     </script>
 </body>
 </html>
+
+

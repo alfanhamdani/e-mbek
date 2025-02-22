@@ -1,5 +1,7 @@
 <?php
 include 'koneksi.php';
+include 'phpqrcode/qrlib.php';
+
 session_start(); // Mulai sesi untuk mengakses informasi sesi pengguna
 
 // Pastikan pengguna telah login sebelumnya
@@ -284,11 +286,13 @@ $result = mysqli_query($conn, $queryHewan);
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['id_hewan']); ?></td>
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jenis_kelamin']); ?></td>
                         <td style="font-size: 15px;">Rp. <?php echo number_format($row['harga'], 0, ',', '.'); ?></td>
-                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['qr_link']); ?></td>
                         <td>
-                        <img src="<?php echo htmlspecialchars($row['gambar']); ?>" alt="Gambar Hewan"
-                        style="width: 100px; height: auto;">
+    <img src="<?php echo $row['qr_link']; ?>" alt="QR Code" width="100" height="100">
 </td>
+
+
+
+             <td><img src="<?php echo htmlspecialchars($row['gambar']); ?>" alt="Gambar Hewan" style="width: 100px; height: auto;"></td>
 
                         <td style="font-size: 14px; text-align: center;">
                             <!-- Tombol Lihat Lainnya -->

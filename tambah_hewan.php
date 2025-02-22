@@ -1,5 +1,6 @@
 <?php
 include 'koneksi.php';
+include 'phpqrcode/qrlib.php'; // Library untuk QR Code
 session_start();
 
 if (!isset($_SESSION['username'])) {
@@ -10,55 +11,63 @@ if (!isset($_SESSION['username'])) {
 $username = $_SESSION['username'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $jenis_kelamin = $_POST['jenis_kelamin'];
-    $jumlah = $_POST['jumlah'];
-    $harga = str_replace('.', '', $_POST['harga']); // Hapus titik pemisah ribuan
+    $jenis_kelamin = mysqli_real_escape_string($conn, $_POST['jenis_kelamin']);
+    $jumlah = intval($_POST['jumlah']);
+    $harga = str_replace('.', '', $_POST['harga']);
     $tanggal = $_POST['tanggal'];
     $user_record = $username;
     $date_record = date('Y-m-d H:i:s');
 
-    $image_path = ""; // Default jika tidak ada gambar yang diunggah
-
-    // Cek apakah ada file yang diunggah
-    if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] == 0) {
-        $target_dir = "uploads/";
-        
-        // Pastikan folder uploads ada
-        if (!is_dir($target_dir)) {
-            mkdir($target_dir, 0777, true);
+    // Cek apakah ada file gambar yang diunggah
+    $gambar_path = "";
+    if (!empty($_FILES['gambar']['name'])) {
+        $upload_dir = "uploads/";
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true); // Buat folder jika belum ada
         }
 
-        $image_name = time() . "_" . basename($_FILES["gambar"]["name"]);
-        $target_file = $target_dir . $image_name;
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        $gambar_name = time() . "_" . basename($_FILES["gambar"]["name"]);
+        $target_file = $upload_dir . $gambar_name;
+        $gambarFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-        // Hanya izinkan format gambar tertentu
+        // Hanya izinkan format tertentu
         $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
-        if (in_array($imageFileType, $allowed_types)) {
+        if (in_array($gambarFileType, $allowed_types)) {
             if (move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file)) {
-                $image_path = $target_file;
+                $gambar_path = $target_file;
             } else {
-                die("Error: Gagal mengupload file!");
+                echo "Gagal mengunggah gambar!";
+                exit;
             }
         } else {
-            die("Format gambar tidak didukung! Hanya JPG, JPEG, PNG, dan GIF.");
+            echo "Format gambar tidak didukung! Hanya JPG, JPEG, PNG, dan GIF.";
+            exit;
         }
     }
 
-    // Simpan data ke database
+    // Simpan data ke tabel mbek_hewan
     $query = "INSERT INTO mbek_hewan (jenis_kelamin, jumlah, harga, tanggal, date_record, user_record, gambar) 
-              VALUES ('$jenis_kelamin', $jumlah, $harga, '$tanggal', '$date_record', '$user_record', '$image_path')";
+              VALUES ('$jenis_kelamin', $jumlah, '$harga', '$tanggal', '$date_record', '$user_record', '$gambar_path')";
 
     if (mysqli_query($conn, $query)) {
         $id_hewan = mysqli_insert_id($conn);
 
-        // Buat link QR
-        $qr_link = "http://localhost/e-mbek/show.php?id_hewan=" . $id_hewan;
-
+        // Buat QR Code untuk setiap hewan
+        $qr_text = "" . $id_hewan;
+        $qr_folder = "qrcodes/";
+        if (!file_exists($qr_folder)) {
+            mkdir($qr_folder, 0777, true);  
+        }
+        
+        $qr_filename = $qr_folder . "qr_hewan_" . $id_hewan . ".png";
+        QRcode::png($qr_text, $qr_filename, QR_ECLEVEL_L, 5);
+        
         // Simpan QR link ke database
-        $query_qr = "UPDATE mbek_hewan SET qr_link='$qr_link' WHERE id_hewan=$id_hewan";
-        mysqli_query($conn, $query_qr);
+        $query_qr = "UPDATE mbek_hewan SET qr_link='$qr_filename' WHERE id_hewan=$id_hewan";
 
+
+        mysqli_query($conn, $query_qr);
+        
         header('Location: daftar_hewan.php');
         exit;
     } else {
@@ -66,6 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
+
 
 
 
