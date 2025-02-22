@@ -2,27 +2,15 @@
 include 'koneksi.php';
 session_start();
 
-// Pastikan pengguna telah login sebelumnya
 if (!isset($_SESSION['username'])) {
-    header('Location: index.php'); // Redirect jika pengguna belum login
+    header('Location: index.php');
     exit;
 }
 
-$username = $_SESSION['username']; // Ambil username pengguna dari sesi
-
-// Pastikan ada parameter id yang dikirim
+$username = $_SESSION['username'];
 $id = $_GET['id'] ?? '';
 $id_pakan = $_GET['id_pakan'] ?? '';
 
-// Ambil data hewan berdasarkan ID
-$query = "SELECT * FROM mbek_hewan WHERE id_hewan = '$id'";
-$result = mysqli_query($conn, $query);
-$data_hewan = mysqli_fetch_assoc($result);
-
-// Ambil ID Hewan yang sudah tersimpan
-$id_hewan_terpilih = $data_hewan['id_hewan'] ?? '';
-
-// Ambil data pakan berdasarkan ID
 $query = "SELECT * FROM mbek_pakan WHERE id_pakan = '$id_pakan'";
 $result = mysqli_query($conn, $query);
 $data_pakan = mysqli_fetch_assoc($result);
@@ -31,21 +19,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_hewan = $_POST['id_hewan'];
     $jenis_pakan = $_POST['jenis_pakan'];
     $berat = $_POST['berat'];
-    $harga_pakan = str_replace('.', '', $_POST['harga_pakan']); // Hapus titik pemisah ribuan
+    $harga_pakan = str_replace('.', '', $_POST['harga_pakan']);
     $tanggal = $_POST['tanggal'];
     $user_modified = $username;
     $date_modified = date('Y-m-d H:i:s');
-
-    $query = "UPDATE mbek_pakan 
-              SET id_hewan = '$id_hewan',
-                  jenis_pakan = '$jenis_pakan',
-                  berat = '$berat', 
-                  harga_pakan = $harga_pakan, 
-                  tanggal = '$tanggal', 
-                  date_modified = '$date_modified', 
-                  user_modified = '$user_modified' 
-              WHERE id_pakan = '$id_pakan'";
-
+    
+    // Cek apakah pengguna mengunggah gambar baru
+    if (!empty($_FILES['gambar']['name'])) {
+        $target_dir = "uploads/";
+        $target_file = $target_dir . basename($_FILES["gambar"]["name"]);
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+        
+        if (in_array($imageFileType, $allowed_types)) {
+            if (move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file)) {
+                // Hapus gambar lama jika ada
+                if (!empty($data_pakan['gambar']) && file_exists("uploads/" . $data_pakan['gambar'])) {
+                    unlink("uploads/" . $data_pakan['gambar']);
+                }
+                
+                $gambar = basename($_FILES["gambar"]["name"]);
+                $query = "UPDATE mbek_pakan SET id_hewan='$id_hewan', jenis_pakan='$jenis_pakan', berat='$berat', harga_pakan='$harga_pakan', tanggal='$tanggal', date_modified='$date_modified', user_modified='$user_modified', gambar='$gambar' WHERE id_pakan='$id_pakan'";
+            }
+        } else {
+            echo "Format gambar tidak valid.";
+            exit;
+        }
+    } else {
+        $query = "UPDATE mbek_pakan SET id_hewan='$id_hewan', jenis_pakan='$jenis_pakan', berat='$berat', harga_pakan='$harga_pakan', tanggal='$tanggal', date_modified='$date_modified', user_modified='$user_modified' WHERE id_pakan='$id_pakan'";
+    }
+    
     if (mysqli_query($conn, $query)) {
         header('Location: daftar_pakan.php');
         exit;
@@ -219,7 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <form method="post" action="" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+    <form method="post" action="" enctype="multipart/form-data" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
         <label>ID Hewan</label>
         <select class="w3-input w3-border" id="id_hewan" name="id_hewan" required>
             <option value="">Pilih ID Hewan</option>
@@ -256,6 +259,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             value="<?= isset($data_pakan['tanggal']) ? $data_pakan['tanggal'] : '' ?>" required><br>
 
         <br>
+        <label>Gambar Pakan</label>
+    <input class="w3-input w3-border" type="file" name="gambar">
+    <?php if (!empty($data_pakan['gambar'])): ?>
+        <p>Gambar saat ini:</p>
+        <img src="uploads/<?= $data_pakan['gambar'] ?>" width="100">
+    <?php endif; ?>
+    <br>
+    <br>
         <div class="w3-half">
             <a href="daftar_pakan.php" class="w3-gray w3-button w3-container w3-padding-16"
                 style="width: 100%;">Kembali</a>
