@@ -2,27 +2,15 @@
 include 'koneksi.php';
 session_start();
 
-// Pastikan pengguna telah login sebelumnya
 if (!isset($_SESSION['username'])) {
-    header('Location: index.php'); // Redirect jika pengguna belum login
+    header('Location: index.php');
     exit;
 }
 
-$username = $_SESSION['username']; // Ambil username pengguna dari sesi
-
-// Pastikan ada parameter id yang dikirim
+$username = $_SESSION['username'];
 $id = $_GET['id'] ?? '';
 $id_perawatan = $_GET['id_perawatan'] ?? '';
 
-// Ambil data hewan berdasarkan ID
-$query = "SELECT * FROM mbek_hewan WHERE id_hewan = '$id'";
-$result = mysqli_query($conn, $query);
-$data_hewan = mysqli_fetch_assoc($result);
-
-// Ambil ID Hewan yang sudah tersimpan
-$id_hewan_terpilih = $data_hewan['id_hewan'] ?? '';
-
-// Ambil data perawatan berdasarkan ID
 $query = "SELECT * FROM mbek_perawatan WHERE id_perawatan = '$id_perawatan'";
 $result = mysqli_query($conn, $query);
 $data_perawatan = mysqli_fetch_assoc($result);
@@ -30,10 +18,21 @@ $data_perawatan = mysqli_fetch_assoc($result);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_hewan = $_POST['id_hewan'];
     $jenis_perawatan = $_POST['jenis_perawatan'];
-    $harga_perawatan = str_replace('.', '', $_POST['harga_perawatan']); // Hapus titik pemisah ribuan
+    $harga_perawatan = str_replace('.', '', $_POST['harga_perawatan']);
     $tanggal = $_POST['tanggal'];
     $user_modified = $username;
     $date_modified = date('Y-m-d H:i:s');
+
+    $gambar = $data_perawatan['gambar']; // Gambar lama
+
+    if (!empty($_FILES['gambar']['name'])) {
+        $target_dir = "uploads/";
+        $target_file = $target_dir . basename($_FILES["gambar"]["name"]);
+        
+        if (move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file)) {
+            $gambar = $target_file; // Update gambar jika berhasil diunggah
+        }
+    }
 
     $query = "UPDATE mbek_perawatan 
               SET id_hewan = '$id_hewan',
@@ -41,7 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   harga_perawatan = $harga_perawatan, 
                   tanggal = '$tanggal', 
                   date_modified = '$date_modified', 
-                  user_modified = '$user_modified' 
+                  user_modified = '$user_modified',
+                  gambar = '$gambar' 
               WHERE id_perawatan = '$id_perawatan'";
 
     if (mysqli_query($conn, $query)) {
@@ -217,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <form method="post" action="" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+    <form method="post" action="" enctype="multipart/form-data" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
         <label>ID Hewan</label>
         <select class="w3-input w3-border" id="id_hewan" name="id_hewan" required>
             <option value="">Pilih ID Hewan</option>
@@ -249,6 +249,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input class="w3-input w3-border" type="date" id="tanggal" name="tanggal"
             value="<?= isset($data_perawatan['tanggal']) ? $data_perawatan['tanggal'] : '' ?>" required><br>
 
+        <br>
+        <label>Gambar Perawatan</label>
+        <input class="w3-input w3-border" type="file" name="gambar">
+        <p>Gambar saat ini:</p>
+        <?php if (!empty($data_perawatan['gambar'])): ?>
+            <img src="<?= $data_perawatan['gambar'] ?>" width="100" alt="Gambar Perawatan"><br>
+        <?php endif; ?>
         <br>
         <div class="w3-half">
             <a href="daftar_perawatan.php" class="w3-gray w3-button w3-container w3-padding-16"
