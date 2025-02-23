@@ -14,7 +14,7 @@ $username = $_SESSION['username']; // Ambil username pengguna dari sesi
 $search_keyword = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
 // Query untuk menghitung total jumlah hewan dengan pencarian
-$sql_total_hewan = "SELECT COUNT(*) AS total_hewan FROM mbek_hewan WHERE id_hewan LIKE '%$search_keyword%'";
+$sql_total_hewan = "SELECT COUNT(*) AS total_hewan FROM mbek_hewan WHERE id_hewan LIKE '%$search_keyword%' AND void != 1";
 $result_total = mysqli_query($conn, $sql_total_hewan);
 
 if ($result_total) {
@@ -40,7 +40,7 @@ if ($page < 1) {
 $offset = ($page - 1) * $records_per_page;
 
 // Query untuk mengambil data hewan dengan pencarian dan pagination
-$queryHewan = "SELECT * FROM mbek_hewan WHERE id_hewan LIKE '%$search_keyword%' ORDER BY jenis_kelamin DESC LIMIT $offset, $records_per_page";
+$queryHewan = "SELECT * FROM mbek_hewan WHERE id_hewan LIKE '%$search_keyword%' AND void != 1 ORDER BY jenis_kelamin DESC LIMIT $offset, $records_per_page";
 $result = mysqli_query($conn, $queryHewan);
 ?>
 
