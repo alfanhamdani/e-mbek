@@ -251,14 +251,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input class="w3-input w3-border" type="date" id="tanggal" name="tanggal"
             value="<?= isset($data_perawatan['tanggal']) ? $data_perawatan['tanggal'] : '' ?>" required><br>
 
-        <br>
         <label>Gambar Perawatan</label>
         <input class="w3-input w3-border" type="file" name="gambar">
         <p>Gambar saat ini:</p>
         <?php if (!empty($data_perawatan['gambar'])): ?>
-            <img src="<?= $data_perawatan['gambar'] ?>" width="100" alt="Gambar Perawatan"><br>
+            <img src="<?= $data_perawatan['gambar'] ?>" width="100" alt="Gambar Perawatan">
         <?php endif; ?>
-        <br>
+        <br><br>
         <div class="w3-half">
             <a href="daftar_perawatan.php" class="w3-gray w3-button w3-container w3-padding-16"
                 style="width: 100%;">Kembali</a>

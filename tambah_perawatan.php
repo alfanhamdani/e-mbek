@@ -188,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label>Tanggal</label>
             <input type="date" class="w3-input w3-border" name="tanggal" required><br>
 
-            <label>Upload Gambar</label>
+            <label>Unggah Gambar</label>
             <input type="file" class="w3-input w3-border" name="gambar" accept="image/*"><br>
 
             <div class="w3-half">

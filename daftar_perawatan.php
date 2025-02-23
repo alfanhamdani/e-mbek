@@ -187,6 +187,7 @@ $result = mysqli_query($conn, $queryPerawatan);
         <a href="daftar_pakan.php" class="w3-bar-item w3-button w3-border">Daftar Pakan</a>
         <a href="daftar_perawatan.php" class="w3-bar-item w3-button w3-border">Daftar Perawatan</a>
         <a href="hasil_labarugi.php" class="w3-bar-item w3-button w3-border">Hasil Laba Rugi</a>
+        <a href="scan_code.php" class="w3-bar-item w3-button w3-border">Pindai Kode</a>
         <?php if ($username === 'admin') { ?>
             <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
         <?php } ?>
@@ -285,7 +286,8 @@ $result = mysqli_query($conn, $queryPerawatan);
                         <td style="font-size: 15px;">Rp.
                             <?php echo number_format($row['harga_perawatan'], 0, ',', '.'); ?>
                         </td>
-                        <td><img src="<?php echo htmlspecialchars($row['gambar']); ?>" alt="Gambar Hewan" style="width: 100px; height: auto;"></td>
+                        <td><img src="<?php echo htmlspecialchars($row['gambar']); ?>" alt="Gambar Hewan"
+                                style="width: 100px; height: auto;"></td>
                         <td style="font-size: 14px; text-align: center;">
                             <!-- Tombol Lihat Lainnya -->
                             <button

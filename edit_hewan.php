@@ -238,12 +238,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input class="w3-input w3-border" type="date" id="tanggal" name="tanggal" value="<?= $data['tanggal'] ?>"
             required><br>
         <label>Gambar</label><br>
-        <input type="file" name="gambar" accept="image/*"><br>
-        <br>
+        <input type="file" name="gambar" accept="image/*">
+        <p>Gambar saat ini:</p>
         <?php if (!empty($data['gambar'])): ?>
-            <img src="<?= $data['gambar'] ?>" width="100" alt="Gambar Hewan"><br>
+            <img src="<?= $data['gambar'] ?>" width="100" alt="Gambar Hewan">
         <?php endif; ?>
-        <br>
+        <br><br>
         <div class="w3-half">
             <a href="daftar_hewan.php" class="w3-gray w3-button w3-container w3-padding-16"
                 style="width: 100%;">Kembali</a>
