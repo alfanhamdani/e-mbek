@@ -325,11 +325,11 @@ $result = mysqli_query($conn, $queryHewan);
                                     <?= number_format($row['harga'], 0, ',', '.'); ?>
                                 </p>
                                 <p><strong>Kode QR:</strong> <?= htmlspecialchars($row['qr_link']); ?></p>
-                                <p><strong>Gambar:</strong> <?= htmlspecialchars($row['gambar']); ?></p>
-
-                                <!-- <td><img src="<?php echo htmlspecialchars($row['gambar']); ?>" alt="Gambar Hewan"
-                                style="width: 100px; height: auto;"></td> -->
                                 <p><strong>Tanggal:</strong> <?= htmlspecialchars($row['tanggal']); ?></p>
+                                <p><strong>Gambar:</strong><br>
+                                    <?php if (!empty($row['gambar'])): ?>
+                                        <img src="<?= $row['gambar'] ?>" width="100" alt="Gambar Perawatan">
+                                    <?php endif; ?>
                             </div>
                             <footer class="w3-container">
                                 <button

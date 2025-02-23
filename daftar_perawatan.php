@@ -276,7 +276,6 @@ $result = mysqli_query($conn, $queryPerawatan);
                     <th>ID hewan</th>
                     <th>Jenis Perawatan</th>
                     <th>Harga Perawatan</th>
-                    <th>Gambar</th>
                     <th>Aksi</th>
                 </tr>
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
@@ -286,8 +285,6 @@ $result = mysqli_query($conn, $queryPerawatan);
                         <td style="font-size: 15px;">Rp.
                             <?php echo number_format($row['harga_perawatan'], 0, ',', '.'); ?>
                         </td>
-                        <td><img src="<?php echo htmlspecialchars($row['gambar']); ?>" alt="Gambar Hewan"
-                                style="width: 100px; height: auto;"></td>
                         <td style="font-size: 14px; text-align: center;">
                             <!-- Tombol Lihat Lainnya -->
                             <button
@@ -318,11 +315,15 @@ $result = mysqli_query($conn, $queryPerawatan);
                             <div class="w3-container">
                                 <p><strong>ID Perawatan:</strong> <?= htmlspecialchars($row['id_perawatan']); ?></p>
                                 <p><strong>ID Hewan:</strong> <?= htmlspecialchars($row['id_hewan']); ?></p>
-                                <p><strong>Jenis Kelamin:</strong> <?= htmlspecialchars($row['jenis_perawatan']); ?></p>
+                                <p><strong>Jenis Perawatan:</strong> <?= htmlspecialchars($row['jenis_perawatan']); ?></p>
                                 <p><strong>Harga Perawatan:</strong> Rp.
                                     <?= number_format($row['harga_perawatan'], 0, ',', '.'); ?>
                                 </p>
-                                <p><strong>Tanggal:</strong> <?= htmlspecialchars($row['tanggal']); ?></p>
+                                <p><strong>Tanggal Perawatan:</strong> <?= htmlspecialchars($row['tanggal']); ?></p>
+                                <p><strong>Gambar Perawatan:</strong><br>
+                                    <?php if (!empty($row['gambar'])): ?>
+                                        <img src="<?= $row['gambar'] ?>" width="100" alt="Gambar Perawatan">
+                                    <?php endif; ?>
                             </div>
                             <footer class="w3-container">
                                 <button

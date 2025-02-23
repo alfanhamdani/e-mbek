@@ -305,7 +305,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 id_hewan: document.getElementById('id_hewan').value.trim(),
                 jenis_perawatan: document.getElementById('jenis_perawatan').value.trim(),
                 harga_perawatan: cleanNumber(document.getElementById('harga_perawatan').value.trim()),
-                tanggal: document.getElementById('tanggal').value.trim()
+                tanggal: document.getElementById('tanggal').value.trim(),
+                gambar: document.getElementById('gambar').value.trim()
             };
 
             // Fungsi untuk memeriksa perubahan
@@ -314,7 +315,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     id_hewan: document.getElementById('id_hewan').value.trim(),
                     jenis_perawatan: document.getElementById('jenis_perawatan').value.trim(),
                     harga_perawatan: cleanNumber(document.getElementById('harga_perawatan').value.trim()),
-                    tanggal: document.getElementById('tanggal').value.trim()
+                    tanggal: document.getElementById('tanggal').value.trim(),
+                    gambar: document.getElementById('gambar').value.trim()
                 };
 
                 var updateButton = document.getElementById('updateButton');
@@ -326,6 +328,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.getElementById('jenis_perawatan').addEventListener('change', checkChanges);
             document.getElementById('harga_perawatan').addEventListener('input', checkChanges);
             document.getElementById('tanggal').addEventListener('change', checkChanges);
+            document.getElementById('gambar').addEventListener('change', checkChanges);
 
             // Pastikan tombol Simpan awalnya dinonaktifkan
             checkChanges();
