@@ -2,14 +2,13 @@
 include 'koneksi.php';
 session_start();
 
-// Pastikan pengguna telah login sebelumnya
+// Pastikan pengguna telah login
 if (!isset($_SESSION['username'])) {
-    header('Location: index.php'); // Redirect jika pengguna belum login
+    header('Location: index.php');
     exit;
 }
 
-$username = $_SESSION['username']; // Ambil username pengguna dari sesi
-
+$username = $_SESSION['username'];
 $id_hewan = isset($_GET['id_hewan']) ? mysqli_real_escape_string($conn, $_GET['id_hewan']) : '';
 $query = "SELECT * FROM mbek_hewan WHERE id_hewan = '$id_hewan'";
 $result = mysqli_query($conn, $query);
@@ -19,15 +18,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_hewan = $_POST['id_hewan'];
     $jenis_kelamin = $_POST['jenis_kelamin'];
     $jumlah = $_POST['jumlah'];
-    $harga = str_replace('.', '', $_POST['harga']); // Hapus titik pemisah ribuan
+    $harga = str_replace('.', '', $_POST['harga']);
     $tanggal = $_POST['tanggal'];
     $user_modified = $username;
     $date_modified = date('Y-m-d H:i:s');
+    
+    $gambar = $data['gambar']; // Default gambar lama
 
-    $query = "UPDATE mbek_hewan 
-              SET jenis_kelamin = '$jenis_kelamin', jumlah = $jumlah, 
-                  harga = $harga, tanggal = '$tanggal', date_modified = '$date_modified', user_modified = '$user_modified' 
-              WHERE id_hewan = '$id_hewan'";
+    if (!empty($_FILES['gambar']['name'])) {
+        $target_dir = "uploads/";
+        $target_file = $target_dir . basename($_FILES['gambar']['name']);
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+
+        if (in_array($imageFileType, $allowed_types)) {
+            if (move_uploaded_file($_FILES['gambar']['tmp_name'], $target_file)) {
+                $gambar = $target_file; // Update gambar jika berhasil diunggah
+            } else {
+                echo "Error mengunggah gambar.";
+            }
+        } else {
+            echo "Format gambar tidak didukung.";
+        }
+    }
+
+    $query = "UPDATE mbek_hewan SET jenis_kelamin='$jenis_kelamin', jumlah=$jumlah, harga=$harga, tanggal='$tanggal', gambar='$gambar', date_modified='$date_modified', user_modified='$user_modified' WHERE id_hewan='$id_hewan'";
+    
     if (mysqli_query($conn, $query)) {
         header('Location: daftar_hewan.php');
         exit;
@@ -202,7 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
 
-    <form method="post" action="" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+    <form method="post" action="" nctype="multipart/form-data" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
         <label>ID Hewan</label>
         <input type="text" class="w3-input w3-border" name="id_hewan" value="<?= $data['id_hewan'] ?>" readonly><br>
         <label>Jenis Kelamin</label>
@@ -219,6 +235,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label>Tanggal</label>
         <input class="w3-input w3-border" type="date" id="tanggal" name="tanggal" value="<?= $data['tanggal'] ?>"
             required><br>
+        <br>
+        <label>Gambar</label>
+        <input type="file" name="gambar" accept="image/*"><br>
+        <br>
+        <?php if (!empty($data['gambar'])): ?>
+            <img src="<?= $data['gambar'] ?>" width="100" alt="Gambar Hewan"><br>
+        <?php endif; ?>
         <br>
         <div class="w3-half">
             <a href="daftar_hewan.php" class="w3-gray w3-button w3-container w3-padding-16"

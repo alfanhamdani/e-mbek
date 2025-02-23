@@ -277,6 +277,7 @@ $result = mysqli_query($conn, $queryPakan);
                     <th>Id Hewan</th>
                     <th>Jenis Pakan</th>
                     <th>Harga Pakan</th>
+                    <th>Gambar</th>
                     <th>Aksi</th>
                 </tr>
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
@@ -284,6 +285,8 @@ $result = mysqli_query($conn, $queryPakan);
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['id_hewan']); ?></td>
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jenis_pakan']); ?></td>
                         <td style="font-size: 15px;">Rp. <?php echo number_format($row['harga_pakan'], 0, ',', '.'); ?></td>
+                        <td><img src="uploads/<?php echo htmlspecialchars($row['gambar']); ?>" alt="Gambar Pakan" style="width: 100px; height: auto;"></td>
+
                         <td style="font-size: 14px; text-align: center;">
                             <!-- Tombol Lihat Lainnya -->
                             <button

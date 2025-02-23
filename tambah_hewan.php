@@ -1,27 +1,73 @@
 <?php
 include 'koneksi.php';
+include 'phpqrcode/qrlib.php'; // Library untuk QR Code
 session_start();
 
-// Pastikan pengguna telah login sebelumnya
 if (!isset($_SESSION['username'])) {
-    header('Location: index.php'); // Redirect jika pengguna belum login
+    header('Location: index.php');
     exit;
 }
 
-$username = $_SESSION['username']; // Ambil username pengguna dari sesi
+$username = $_SESSION['username'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $jenis_kelamin = $_POST['jenis_kelamin'];
-    $jumlah = $_POST['jumlah'];
-    $harga = str_replace('.', '', $_POST['harga']); // Hapus titik pemisah ribuan
+    $jenis_kelamin = mysqli_real_escape_string($conn, $_POST['jenis_kelamin']);
+    $jumlah = intval($_POST['jumlah']);
+    $harga = str_replace('.', '', $_POST['harga']);
     $tanggal = $_POST['tanggal'];
     $user_record = $username;
     $date_record = date('Y-m-d H:i:s');
 
-    // Query insert data
-    $query = "INSERT INTO mbek_hewan (jenis_kelamin, jumlah, harga, tanggal, date_record, user_record) 
-              VALUES ('$jenis_kelamin', $jumlah, $harga, '$tanggal', '$date_record', '$user_record')";
+    // Cek apakah ada file gambar yang diunggah
+    $gambar_path = "";
+    if (!empty($_FILES['gambar']['name'])) {
+        $upload_dir = "uploads/";
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true); // Buat folder jika belum ada
+        }
+
+        $gambar_name = time() . "_" . basename($_FILES["gambar"]["name"]);
+        $target_file = $upload_dir . $gambar_name;
+        $gambarFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+        // Hanya izinkan format tertentu
+        $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+        if (in_array($gambarFileType, $allowed_types)) {
+            if (move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file)) {
+                $gambar_path = $target_file;
+            } else {
+                echo "Gagal mengunggah gambar!";
+                exit;
+            }
+        } else {
+            echo "Format gambar tidak didukung! Hanya JPG, JPEG, PNG, dan GIF.";
+            exit;
+        }
+    }
+
+    // Simpan data ke tabel mbek_hewan
+    $query = "INSERT INTO mbek_hewan (jenis_kelamin, jumlah, harga, tanggal, date_record, user_record, gambar) 
+              VALUES ('$jenis_kelamin', $jumlah, '$harga', '$tanggal', '$date_record', '$user_record', '$gambar_path')";
+
     if (mysqli_query($conn, $query)) {
+        $id_hewan = mysqli_insert_id($conn);
+
+        // Buat QR Code untuk setiap hewan
+        $qr_text = "" . $id_hewan;
+        $qr_folder = "qrcodes/";
+        if (!file_exists($qr_folder)) {
+            mkdir($qr_folder, 0777, true);  
+        }
+        
+        $qr_filename = $qr_folder . "qr_hewan_" . $id_hewan . ".png";
+        QRcode::png($qr_text, $qr_filename, QR_ECLEVEL_L, 5);
+        
+        // Simpan QR link ke database
+        $query_qr = "UPDATE mbek_hewan SET qr_link='$qr_filename' WHERE id_hewan=$id_hewan";
+
+
+        mysqli_query($conn, $query_qr);
+        
         header('Location: daftar_hewan.php');
         exit;
     } else {
@@ -29,6 +75,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
+
+
+
+
 
 <!DOCTYPE html>
 <html lang="id">
@@ -134,7 +185,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="w3-container w3-padding-16">
-        <form action="" method="post" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+    <form action="" method="post" enctype="multipart/form-data" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+
             <label>Jenis Kelamin</label>
             <select class="w3-input w3-border" name="jenis_kelamin" required>
                 <option value="">Pilih jenis kelamin</option>
@@ -148,6 +200,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 oninput="formatRibuan(this)"></label><br>
             <label>Tanggal</label>
             <input type="date" class="w3-input w3-border" name="tanggal" required><br>
+            <label>Upload Gambar</label>
+            <input type="file" class="w3-input w3-border" name="gambar" accept="image/*">
+
+
             <div class="w3-half">
                 <a href="daftar_hewan.php" class="w3-gray w3-button w3-container w3-padding-16"
                     style="width: 100%;">Kembali</a>

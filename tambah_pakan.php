@@ -2,26 +2,44 @@
 include 'koneksi.php';
 session_start();
 
-// Pastikan pengguna telah login sebelumnya
+// Pastikan pengguna telah login
 if (!isset($_SESSION['username'])) {
-    header('Location: index.php'); // Redirect jika pengguna belum login
+    header('Location: index.php');
     exit;
 }
 
-$username = $_SESSION['username']; // Ambil username pengguna dari sesi
+$username = $_SESSION['username']; // Ambil username dari sesi
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_hewan = $_POST['id_hewan'];
     $jenis_pakan = $_POST['jenis_pakan'];
     $berat = $_POST['berat'];
-    $harga_pakan = str_replace('.', '', $_POST['harga_pakan']); // Hapus titik pemisah ribuan
+    $harga_pakan = str_replace('.', '', $_POST['harga_pakan']); // Hapus pemisah ribuan
     $tanggal = $_POST['tanggal'];
     $user_record = $username;
     $date_record = date('Y-m-d H:i:s');
+    
+    // Upload Gambar
+    $gambar = '';
 
-    // Query insert data
-    $query = "INSERT INTO mbek_pakan (id_hewan, jenis_pakan, berat, harga_pakan, tanggal, date_record, user_record) 
-              VALUES ('$id_hewan', '$jenis_pakan', '$berat', '$harga_pakan', '$tanggal', '$date_record', '$user_record')";
+    if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === UPLOAD_ERR_OK) {
+        $uploadDir = 'uploads/'; // Direktori penyimpanan gambar
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $gambarName = time() . '_' . basename($_FILES['gambar']['name']);
+        $gambarPath = $uploadDir . $gambarName;
+
+        if (move_uploaded_file($_FILES['gambar']['tmp_name'], $gambarPath)) {
+            $gambar = $gambarName; // Simpan hanya nama file di database
+        }
+    }
+
+    // Query untuk menyimpan data ke database
+    $query = "INSERT INTO mbek_pakan (id_hewan, jenis_pakan, berat, harga_pakan, tanggal, date_record, user_record, gambar) 
+              VALUES ('$id_hewan', '$jenis_pakan', '$berat', '$harga_pakan', '$tanggal', '$date_record', '$user_record', '$gambar')";
+
     if (mysqli_query($conn, $query)) {
         header('Location: daftar_pakan.php');
         exit;
@@ -30,6 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="id">
@@ -135,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="w3-container w3-padding-16">
-        <form action="" method="post" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+    <form action="" method="post" enctype="multipart/form-data" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
             <label>ID Hewan</label>
             <select class="w3-input w3-border" name="id_hewan" required>
                 <option value="">Pilih id hewan</option>
@@ -164,6 +184,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 oninput="formatRibuan(this)"></label><br>
             <label>Tanggal</label>
             <input type="date" class="w3-input w3-border" name="tanggal" required><br>
+
+            <label>Upload Gambar</label>
+            <input type="file" name="gambar" accept="image/*"><br>
+
             <div class="w3-half">
                 <a href="daftar_pakan.php" class="w3-gray w3-button w3-container w3-padding-16"
                     style="width: 100%;">Kembali</a>

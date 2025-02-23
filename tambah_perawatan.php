@@ -18,9 +18,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_record = $username;
     $date_record = date('Y-m-d H:i:s');
 
+    // Proses upload gambar
+    $gambar_path = '';
+    if (!empty($_FILES['gambar']['name'])) {
+        $target_dir = "uploads/"; // Folder penyimpanan gambar
+        $gambar_name = basename($_FILES["gambar"]["name"]);
+        $gambar_path = $target_dir . time() . "_" . $gambar_name; // Tambahkan timestamp agar unik
+        $imageFileType = strtolower(pathinfo($gambar_path, PATHINFO_EXTENSION));
+
+        // Validasi format gambar
+        $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+        if (in_array($imageFileType, $allowed_types)) {
+            if (move_uploaded_file($_FILES["gambar"]["tmp_name"], $gambar_path)) {
+                // Berhasil upload, lanjut ke database
+            } else {
+                echo "Gagal mengupload gambar.";
+                exit;
+            }
+        } else {
+            echo "Format gambar tidak didukung. Gunakan JPG, JPEG, PNG, atau GIF.";
+            exit;
+        }
+    }
+
     // Query insert data
-    $query = "INSERT INTO mbek_perawatan (id_hewan, jenis_perawatan, harga_perawatan, tanggal, date_record, user_record) 
-              VALUES ('$id_hewan', '$jenis_perawatan', '$harga_perawatan', '$tanggal', '$date_record', '$user_record')";
+    $query = "INSERT INTO mbek_perawatan (id_hewan, jenis_perawatan, harga_perawatan, tanggal, date_record, user_record, gambar) 
+              VALUES ('$id_hewan', '$jenis_perawatan', '$harga_perawatan', '$tanggal', '$date_record', '$user_record', '$gambar_path')";
+
     if (mysqli_query($conn, $query)) {
         header('Location: daftar_perawatan.php');
         exit;
@@ -134,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="w3-container w3-padding-16">
-        <form action="" method="post" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+    <form action="" method="post" enctype="multipart/form-data" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
             <label>ID Hewan</label>
             <select class="w3-input w3-border" name="id_hewan" required>
                 <option value="">Pilih id hewan</option>
@@ -161,6 +185,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 oninput="formatRibuan(this)"></label><br>
             <label>Tanggal</label>
             <input type="date" class="w3-input w3-border" name="tanggal" required><br>
+            
+            <label>Upload Gambar</label>
+            <input type="file" class="w3-input w3-border" name="gambar" accept="image/*"><br>
+
             <div class="w3-half">
                 <a href="daftar_perawatan.php" class="w3-gray w3-button w3-container w3-padding-16"
                     style="width: 100%;">Kembali</a>
