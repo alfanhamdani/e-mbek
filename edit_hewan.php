@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tanggal = $_POST['tanggal'];
     $user_modified = $username;
     $date_modified = date('Y-m-d H:i:s');
-    
+
     $gambar = $data['gambar']; // Default gambar lama
 
     if (!empty($_FILES['gambar']['name'])) {
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $query = "UPDATE mbek_hewan SET jenis_kelamin='$jenis_kelamin', jumlah=$jumlah, harga=$harga, tanggal='$tanggal', gambar='$gambar', date_modified='$date_modified', user_modified='$user_modified' WHERE id_hewan='$id_hewan'";
-    
+
     if (mysqli_query($conn, $query)) {
         header('Location: daftar_hewan.php');
         exit;
@@ -199,6 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="daftar_pakan.php" class="w3-bar-item w3-button w3-border">Daftar Pakan</a>
         <a href="daftar_perawatan.php" class="w3-bar-item w3-button w3-border">Daftar Perawatan</a>
         <a href="hasil_labarugi.php" class="w3-bar-item w3-button w3-border">Hasil Laba Rugi</a>
+        <a href="scan_code.php" class="w3-bar-item w3-button w3-border">Pindai Kode</a>
         <?php if ($username === 'admin') { ?>
             <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
         <?php } ?>
@@ -218,7 +219,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
 
-    <form method="post" action="" nctype="multipart/form-data" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+    <form method="post" action="" nctype="multipart/form-data"
+        class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
         <label>ID Hewan</label>
         <input type="text" class="w3-input w3-border" name="id_hewan" value="<?= $data['id_hewan'] ?>" readonly><br>
         <label>Jenis Kelamin</label>
@@ -235,8 +237,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label>Tanggal</label>
         <input class="w3-input w3-border" type="date" id="tanggal" name="tanggal" value="<?= $data['tanggal'] ?>"
             required><br>
-        <br>
-        <label>Gambar</label>
+        <label>Gambar</label><br>
         <input type="file" name="gambar" accept="image/*"><br>
         <br>
         <?php if (!empty($data['gambar'])): ?>

@@ -189,7 +189,7 @@ $result = mysqli_query($conn, $queryHewan);
         <a href="daftar_pakan.php" class="w3-bar-item w3-button w3-border">Daftar Pakan</a>
         <a href="daftar_perawatan.php" class="w3-bar-item w3-button w3-border">Daftar Perawatan</a>
         <a href="hasil_labarugi.php" class="w3-bar-item w3-button w3-border">Hasil Laba Rugi</a>
-        <a href="scan_code.php" class="w3-bar-item w3-button w3-border">Scan Code</a>
+        <a href="scan_code.php" class="w3-bar-item w3-button w3-border">Pindai Kode</a>
         <?php if ($username === 'admin') { ?>
             <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
         <?php } ?>
@@ -278,8 +278,7 @@ $result = mysqli_query($conn, $queryHewan);
                     <th>ID Hewan</th>
                     <th>Jenis Kelamin</th>
                     <th>Harga</th>
-                    <th>QR Code</th>
-                    <th>image</th>
+                    <th>Kode QR</th>
                     <th>Aksi</th>
                 </tr>
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
@@ -288,12 +287,8 @@ $result = mysqli_query($conn, $queryHewan);
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jenis_kelamin']); ?></td>
                         <td style="font-size: 15px;">Rp. <?php echo number_format($row['harga'], 0, ',', '.'); ?></td>
                         <td>
-    <img src="<?php echo $row['qr_link']; ?>" alt="QR Code" width="100" height="100">
-</td>
-
-
-
-             <td><img src="<?php echo htmlspecialchars($row['gambar']); ?>" alt="Gambar Hewan" style="width: 100px; height: auto;"></td>
+                            <img src="<?php echo $row['qr_link']; ?>" alt="QR Code" width="100" height="100">
+                        </td>
 
                         <td style="font-size: 14px; text-align: center;">
                             <!-- Tombol Lihat Lainnya -->
@@ -329,6 +324,11 @@ $result = mysqli_query($conn, $queryHewan);
                                 <p><strong>Harga:</strong> Rp.
                                     <?= number_format($row['harga'], 0, ',', '.'); ?>
                                 </p>
+                                <p><strong>Kode QR:</strong> <?= htmlspecialchars($row['qr_link']); ?></p>
+                                <p><strong>Gambar:</strong> <?= htmlspecialchars($row['gambar']); ?></p>
+
+                                <!-- <td><img src="<?php echo htmlspecialchars($row['gambar']); ?>" alt="Gambar Hewan"
+                                style="width: 100px; height: auto;"></td> -->
                                 <p><strong>Tanggal:</strong> <?= htmlspecialchars($row['tanggal']); ?></p>
                             </div>
                             <footer class="w3-container">
