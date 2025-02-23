@@ -184,6 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <a href="daftar_pakan.php" class="w3-bar-item w3-button w3-border">Daftar Pakan</a>
         <a href="daftar_perawatan.php" class="w3-bar-item w3-button w3-border">Daftar Perawatan</a>
         <a href="hasil_labarugi.php" class="w3-bar-item w3-button w3-border">Hasil Laba Rugi</a>
+        <a href="scan_code.php" class="w3-bar-item w3-button w3-border">Pindai Kode</a>
         <?php if ($username === 'admin') { ?>
             <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
         <?php } ?>
