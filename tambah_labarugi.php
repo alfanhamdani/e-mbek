@@ -93,8 +93,8 @@ if (isset($_GET['id_hewan'])) {
     exit(); // Hentikan eksekusi script setelah merespons AJAX
 }
 
-// Ambil daftar hewan untuk dropdown
-$sql = "SELECT id_hewan FROM mbek_hewan";
+// Ambil daftar hewan untuk dropdown, hanya yang memiliki void = 0
+$sql = "SELECT id_hewan FROM mbek_hewan WHERE void = 0";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>

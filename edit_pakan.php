@@ -206,7 +206,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <select class="w3-input w3-border" id="id_hewan" name="id_hewan" required>
             <option value="">Pilih ID Hewan</option>
             <?php
-            $query = "SELECT id_hewan FROM mbek_hewan ORDER BY id_hewan ASC";
+            $query = "SELECT id_hewan FROM mbek_hewan WHERE void = 0 ORDER BY id_hewan ASC";
             $result = mysqli_query($conn, $query);
 
             if ($result) {

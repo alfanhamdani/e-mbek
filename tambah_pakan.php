@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <option value="">Pilih id hewan</option>
                 <?php
                 // Ambil data ID Hewan dari tabel mbek_hewan
-                $query = "SELECT id_hewan FROM mbek_hewan ORDER BY id_hewan ASC";
+                $query = "SELECT id_hewan FROM mbek_hewan WHERE void = 0 ORDER BY id_hewan ASC";
                 $result = mysqli_query($conn, $query);
 
                 if ($result) {

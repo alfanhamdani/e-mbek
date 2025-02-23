@@ -139,6 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="daftar_pakan.php" class="w3-bar-item w3-button w3-border">Daftar Pakan</a>
         <a href="daftar_perawatan.php" class="w3-bar-item w3-button w3-border">Daftar Perawatan</a>
         <a href="hasil_labarugi.php" class="w3-bar-item w3-button w3-border">Hasil Laba Rugi</a>
+        <a href="scan_code.php" class="w3-bar-item w3-button w3-border">Pindai Kode</a>
         <?php if ($username === 'admin') { ?>
             <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
         <?php } ?>
@@ -158,13 +159,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="w3-container w3-padding-16">
-    <form action="" method="post" enctype="multipart/form-data" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+        <form action="" method="post" enctype="multipart/form-data"
+            class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
             <label>ID Hewan</label>
             <select class="w3-input w3-border" name="id_hewan" required>
                 <option value="">Pilih id hewan</option>
                 <?php
                 // Ambil data ID Hewan dari tabel mbek_hewan
-                $query = "SELECT id_hewan FROM mbek_hewan ORDER BY id_hewan ASC";
+                $query = "SELECT id_hewan FROM mbek_hewan WHERE void = 0 ORDER BY id_hewan ASC";
                 $result = mysqli_query($conn, $query);
 
                 if ($result) {
@@ -185,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 oninput="formatRibuan(this)"></label><br>
             <label>Tanggal</label>
             <input type="date" class="w3-input w3-border" name="tanggal" required><br>
-            
+
             <label>Upload Gambar</label>
             <input type="file" class="w3-input w3-border" name="gambar" accept="image/*"><br>
 
