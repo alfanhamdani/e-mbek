@@ -23,32 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tanggal = $_POST['tanggal'];
     $user_modified = $username;
     $date_modified = date('Y-m-d H:i:s');
-    
-    // Cek apakah pengguna mengunggah gambar baru
-    if (!empty($_FILES['gambar']['name'])) {
-        $target_dir = "uploads/";
-        $target_file = $target_dir . basename($_FILES["gambar"]["name"]);
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-        $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
-        
-        if (in_array($imageFileType, $allowed_types)) {
-            if (move_uploaded_file($_FILES["gambar"]["tmp_name"], $target_file)) {
-                // Hapus gambar lama jika ada
-                if (!empty($data_pakan['gambar']) && file_exists("uploads/" . $data_pakan['gambar'])) {
-                    unlink("uploads/" . $data_pakan['gambar']);
-                }
-                
-                $gambar = basename($_FILES["gambar"]["name"]);
-                $query = "UPDATE mbek_pakan SET id_hewan='$id_hewan', jenis_pakan='$jenis_pakan', berat='$berat', harga_pakan='$harga_pakan', tanggal='$tanggal', date_modified='$date_modified', user_modified='$user_modified', gambar='$gambar' WHERE id_pakan='$id_pakan'";
-            }
-        } else {
-            echo "Format gambar tidak valid.";
-            exit;
-        }
-    } else {
-        $query = "UPDATE mbek_pakan SET id_hewan='$id_hewan', jenis_pakan='$jenis_pakan', berat='$berat', harga_pakan='$harga_pakan', tanggal='$tanggal', date_modified='$date_modified', user_modified='$user_modified' WHERE id_pakan='$id_pakan'";
-    }
-    
+
+    $query = "UPDATE mbek_pakan SET id_hewan='$id_hewan', jenis_pakan='$jenis_pakan', berat='$berat', harga_pakan='$harga_pakan', tanggal='$tanggal', date_modified='$date_modified', user_modified='$user_modified' WHERE id_pakan='$id_pakan'";
+
     if (mysqli_query($conn, $query)) {
         header('Location: daftar_pakan.php');
         exit;
@@ -204,6 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="daftar_pakan.php" class="w3-bar-item w3-button w3-border">Daftar Pakan</a>
         <a href="daftar_perawatan.php" class="w3-bar-item w3-button w3-border">Daftar Perawatan</a>
         <a href="hasil_labarugi.php" class="w3-bar-item w3-button w3-border">Hasil Laba Rugi</a>
+        <a href="scan_code.php" class="w3-bar-item w3-button w3-border">Pindai Kode</a>
         <?php if ($username === 'admin') { ?>
             <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
         <?php } ?>
@@ -222,7 +200,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <form method="post" action="" enctype="multipart/form-data" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+    <form method="post" action="" enctype="multipart/form-data"
+        class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
         <label>ID Hewan</label>
         <select class="w3-input w3-border" id="id_hewan" name="id_hewan" required>
             <option value="">Pilih ID Hewan</option>
@@ -258,15 +237,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input class="w3-input w3-border" type="date" id="tanggal" name="tanggal"
             value="<?= isset($data_pakan['tanggal']) ? $data_pakan['tanggal'] : '' ?>" required><br>
 
-        <br>
-        <label>Gambar Pakan</label>
-    <input class="w3-input w3-border" type="file" name="gambar">
-    <?php if (!empty($data_pakan['gambar'])): ?>
-        <p>Gambar saat ini:</p>
-        <img src="uploads/<?= $data_pakan['gambar'] ?>" width="100">
-    <?php endif; ?>
-    <br>
-    <br>
         <div class="w3-half">
             <a href="daftar_pakan.php" class="w3-gray w3-button w3-container w3-padding-16"
                 style="width: 100%;">Kembali</a>

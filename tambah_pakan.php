@@ -18,27 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tanggal = $_POST['tanggal'];
     $user_record = $username;
     $date_record = date('Y-m-d H:i:s');
-    
-    // Upload Gambar
-    $gambar = '';
-
-    if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = 'uploads/'; // Direktori penyimpanan gambar
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
-
-        $gambarName = time() . '_' . basename($_FILES['gambar']['name']);
-        $gambarPath = $uploadDir . $gambarName;
-
-        if (move_uploaded_file($_FILES['gambar']['tmp_name'], $gambarPath)) {
-            $gambar = $gambarName; // Simpan hanya nama file di database
-        }
-    }
 
     // Query untuk menyimpan data ke database
-    $query = "INSERT INTO mbek_pakan (id_hewan, jenis_pakan, berat, harga_pakan, tanggal, date_record, user_record, gambar) 
-              VALUES ('$id_hewan', '$jenis_pakan', '$berat', '$harga_pakan', '$tanggal', '$date_record', '$user_record', '$gambar')";
+    $query = "INSERT INTO mbek_pakan (id_hewan, jenis_pakan, berat, harga_pakan, tanggal, date_record, user_record) 
+              VALUES ('$id_hewan', '$jenis_pakan', '$berat', '$harga_pakan', '$tanggal', '$date_record', '$user_record')";
 
     if (mysqli_query($conn, $query)) {
         header('Location: daftar_pakan.php');
@@ -136,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="daftar_pakan.php" class="w3-bar-item w3-button w3-border">Daftar Pakan</a>
         <a href="daftar_perawatan.php" class="w3-bar-item w3-button w3-border">Daftar Perawatan</a>
         <a href="hasil_labarugi.php" class="w3-bar-item w3-button w3-border">Hasil Laba Rugi</a>
+        <a href="scan_code.php" class="w3-bar-item w3-button w3-border">Pindai Kode</a>
         <?php if ($username === 'admin') { ?>
             <a href="daftar_pengguna.php" class="w3-bar-item w3-button w3-border">Daftar Pengguna</a>
         <?php } ?>
@@ -155,7 +139,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="w3-container w3-padding-16">
-    <form action="" method="post" enctype="multipart/form-data" class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
+        <form action="" method="post" enctype="multipart/form-data"
+            class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
             <label>ID Hewan</label>
             <select class="w3-input w3-border" name="id_hewan" required>
                 <option value="">Pilih id hewan</option>
@@ -184,9 +169,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 oninput="formatRibuan(this)"></label><br>
             <label>Tanggal</label>
             <input type="date" class="w3-input w3-border" name="tanggal" required><br>
-
-            <label>Upload Gambar</label>
-            <input type="file" name="gambar" accept="image/*"><br>
 
             <div class="w3-half">
                 <a href="daftar_pakan.php" class="w3-gray w3-button w3-container w3-padding-16"
