@@ -42,7 +42,7 @@ if ($page < 1) {
 $offset = ($page - 1) * $records_per_page;
 
 // Query untuk mengambil data hewan dengan pencarian dan pagination
-$queryHewan = "SELECT * FROM mbek_hewan WHERE id_hewan LIKE '%$search_keyword%' AND void != 1 ORDER BY jenis_kelamin DESC LIMIT $offset, $records_per_page";
+$queryHewan = "SELECT * FROM mbek_hewan WHERE id_hewan LIKE '%$search_keyword%' AND void != 1 ORDER BY id_hewan DESC LIMIT $offset, $records_per_page";
 $result = mysqli_query($conn, $queryHewan);
 ?>
 
@@ -314,7 +314,7 @@ $result = mysqli_query($conn, $queryHewan);
                                     onclick="document.getElementById('detailModal<?= $row['id_hewan'] ?>').style.display='none'"
                                     class="w3-button w3-display-topright">&times;</span>
                                 <h3>
-                                    <b>Detail Pakan</b>
+                                    <b>Detail Hewan</b>
                                 </h3>
                             </header>
                             <div class="w3-container">
@@ -324,9 +324,12 @@ $result = mysqli_query($conn, $queryHewan);
                                 <p><strong>Harga:</strong> Rp.
                                     <?= number_format($row['harga'], 0, ',', '.'); ?>
                                 </p>
-                                <p><strong>Kode QR:</strong> <?= htmlspecialchars($row['qr_link']); ?></p>
+                                <p><strong>Kode QR:</strong>
+                                    <?php if (!empty($row['qr_link'])): ?>
+                                        <img src="<?php echo $row['qr_link']; ?>" alt="QR Code" width="100" height="100">
+                                    <?php endif; ?>
                                 <p><strong>Tanggal:</strong> <?= htmlspecialchars($row['tanggal']); ?></p>
-                                <p><strong>Gambar:</strong><br>
+                                <p><strong>Gambar:</strong>
                                     <?php if (!empty($row['gambar'])): ?>
                                         <img src="<?= $row['gambar'] ?>" width="100" alt="Gambar Perawatan">
                                     <?php endif; ?>

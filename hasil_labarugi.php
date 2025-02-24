@@ -1,6 +1,6 @@
 <?php
 include 'koneksi.php';
-session_start();
+session_start(); // Mulai sesi untuk mengakses informasi sesi pengguna
 
 // Pastikan pengguna telah login sebelumnya
 if (!isset($_SESSION['username'])) {
@@ -10,78 +10,43 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username']; // Ambil username pengguna dari sesi
 
-// Handle search keyword
+// Handle pencarian
 $search_keyword = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
-// Process deletion (mark as void) if 'action' and 'id' parameters are set
-if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
-    $id_penjualan = mysqli_real_escape_string($conn, $_GET['id']);
+// Query untuk menghitung total jumlah labarugi dengan pencarian
+$sql_total_labarugi = "SELECT COUNT(*) AS total_labarugi FROM mbek_hasil_labarugi WHERE id_hewan LIKE '%$search_keyword%' AND void != 1";
+$result_total = mysqli_query($conn, $sql_total_labarugi);
 
-    // Mark the sale as void
-    $sql_delete = "UPDATE mbek_hasil_labarugi SET void = 1 WHERE id_hasil_labarugi = ?";
-    $stmt_delete = mysqli_prepare($conn, $sql_delete);
-    mysqli_stmt_bind_param($stmt_delete, 'i', $id_penjualan);
-
-    if (mysqli_stmt_execute($stmt_delete)) {
-        header('Location: hasil_labarugi.php'); // Redirect after "deletion"
-        exit;
-    } else {
-        die("Error: " . mysqli_error($conn));
-    }
+if ($result_total) {
+    $data_total = mysqli_fetch_assoc($result_total);
+    $totalLabarugi = $data_total['total_labarugi'];
+} else {
+    $totalLabarugi = 0; // Fallback jika terjadi kesalahan
 }
 
-// Count total sales for pagination
-$sql_count = "SELECT COUNT(id_hasil_labarugi) AS total 
-              FROM mbek_hasil_labarugi 
-              WHERE void = 0 AND user_record = ?";
-
-$stmt_count = mysqli_prepare($conn, $sql_count);
-mysqli_stmt_bind_param($stmt_count, 's', $username);
-mysqli_stmt_execute($stmt_count);
-$result_count = mysqli_stmt_get_result($stmt_count);
-$row_count = mysqli_fetch_assoc($result_count);
-$total_records = $row_count['total'];
-
-// Pagination settings
+// Jumlah laba rugi per halaman
 $records_per_page = 10;
-$total_pages = ceil($total_records / $records_per_page);
+
+// Menghitung jumlah halaman
+$total_pages = ceil($totalLabarugi / $records_per_page);
+
+// Mendapatkan halaman saat ini
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+if ($page < 1) {
+    $page = 1;
+}
+
+// Menghitung offset untuk query SQL
 $offset = ($page - 1) * $records_per_page;
 
-// Query to get sales data with search and pagination
-$sql = "SELECT id_hasil_labarugi, id_hewan, jenis_kelamin, jumlah, hpp, harga, tanggal_pembelian, tanggal_penjualan, user_record 
-        FROM mbek_hasil_labarugi 
-        WHERE void = 0 
-        AND user_record = ? 
-        AND (id_hewan LIKE ? OR jenis_kelamin LIKE ?)
-        ORDER BY id_hasil_labarugi DESC 
-        LIMIT ?, ?";
-
-$stmt = mysqli_prepare($conn, $sql);
-$search_keyword_like = '%' . $search_keyword . '%';
-mysqli_stmt_bind_param($stmt, 'ssssi', $username, $search_keyword_like, $search_keyword_like, $offset, $records_per_page);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
-
-// Query to get the total number of sales
-$totalQuery = "SELECT COUNT(*) AS total_sales FROM mbek_hasil_labarugi WHERE void = 0 AND user_record = ?";
-
-$stmt_total = mysqli_prepare($conn, $totalQuery);
-mysqli_stmt_bind_param($stmt_total, 's', $username);
-mysqli_stmt_execute($stmt_total);
-$totalResult = mysqli_stmt_get_result($stmt_total);
-
-if ($totalResult) {
-    $totalData = mysqli_fetch_assoc($totalResult);
-    $totalSales = $totalData['total_sales'];
-} else {
-    $totalSales = 0; // Fallback in case of an error
-}
+// Query untuk mengambil data laba rugi dengan pencarian dan pagination
+$queryLabarugi = "SELECT * FROM mbek_hasil_labarugi WHERE id_hewan LIKE '%$search_keyword%' AND void != 1 ORDER BY id_hasil_labarugi DESC LIMIT $offset, $records_per_page";
+$result = mysqli_query($conn, $queryLabarugi);
 ?>
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
@@ -90,25 +55,12 @@ if ($totalResult) {
     <link rel="stylesheet" href="w3.css">
     <link rel="icon" href="logo e-mbek.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        /* Styling for specific elements */
         .action-icons {
             display: flex;
             justify-content: space-around;
             margin-top: 10px;
-        }
-
-        .sticky-header {
-            position: -webkit-sticky;
-            /* For Safari */
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            background-color: white;
-            /* Ensure background is white to cover content below */
         }
 
         .bottom-right {
@@ -220,18 +172,6 @@ if ($totalResult) {
         .action-icons a {
             margin: 5px;
         }
-
-        .w3-modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
     </style>
 </head>
 
@@ -268,26 +208,68 @@ if ($totalResult) {
             </div>
         </div>
 
-        <!-- Search Box -->
+        <!-- Modal untuk konfirmasi penghapusan -->
+        <div id="deleteModal" class="w3-modal" onclick="closeModal(event)"
+            style="align-items:center; padding-top: 15%;">
+            <div class="w3-modal-content w3-animate-top w3-card-4">
+                <header class="w3-container w3-red">
+                    <span onclick="document.getElementById('deleteModal').style.display='none'"
+                        class="w3-button w3-display-topright">&times;</span>
+                    <h2>Konfirmasi</h2>
+                </header>
+                <div class="w3-container">
+                    <p>Apakah Anda yakin ingin menghapus data laba rugi ini?</p>
+                    <div class="w3-right">
+                        <button class="w3-button w3-grey"
+                            onclick="document.getElementById('deleteModal').style.display='none'">Batal</button>
+                        <button class="w3-button w3-red" onclick="confirmDelete()">Hapus</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CSS untuk modal konfirmasi delete -->
+        <style>
+            .w3-modal {
+                display: none;
+                /* Sembunyikan modal secara default */
+                position: fixed;
+                z-index: 9999;
+                /* Pastikan modal berada di atas semua elemen lain */
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0, 0, 0, 0.4);
+                /* Latar belakang gelap semi-transparan */
+            }
+        </style>
+
+        <!-- Kotak Pencarian -->
         <div style="display: flex; justify-content: center; margin: 20px;">
             <form method="GET" action="" style="width: 100%; max-width: 600px; display: flex; position: relative;">
-                <!-- Input Field with Modern Style -->
-                <input type="text" name="search" class="w3-input w3-border" placeholder="Cari id hewan..."
-                    value="<?php echo isset($_GET['search']) && !empty($_GET['search']) ? '' : htmlspecialchars($search_keyword); ?>"
-                    style="width: 100%; padding: 12px 20px; padding-right: 60px; border-radius: 50px; border: 2px solid #ddd; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); font-size: 16px;">
+                <!-- Input Field -->
+                <input type="text" name="search" id="searchInput" class="w3-input w3-border"
+                    placeholder="Cari id hewan..."
+                    value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" style="width: 100%; padding: 12px 20px; padding-right: 60px; border-radius: 50px; 
+                   border: 2px solid #ddd; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); font-size: 16px;">
 
-                <!-- Modern "Cari" Button -->
-                <button type="submit" class="w3-button w3-green"
-                    style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); height: 40px; width: 40px; border-radius: 50%; border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                    <i class="fa fa-search" style="font-size: 18px;"></i> <!-- Increased Font Awesome icon size -->
+                <!-- Tombol "Cari" -->
+                <button type="submit" class="w3-button w3-green" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); height: 40px; width: 40px; 
+                   border-radius: 50%; border: none; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); cursor: pointer; 
+                   display: flex; align-items: center; justify-content: center;">
+                    <i class="fa fa-search" style="font-size: 18px;"></i>
                 </button>
             </form>
         </div>
 
-        <!-- Total Sales -->
+
+        <!-- Total users -->
         <div style="font-size: 15px; text-align: right; padding-right: 30px;">
-            <span class="w3-bar-item">Total: <?php echo $totalSales; ?> Data Laba Rugi</span>
+            <span class="w3-bar-item">Total: <?php echo $totalLabarugi; ?> Laba Rugi</span>
         </div>
+
 
         <div class="w3-responsive">
             <table class="w3-table-all w3-centered" border="1" style="border-collapse: collapse; width: 100%;">
@@ -303,10 +285,10 @@ if ($totalResult) {
                         <td style="font-size: 15px;"><?php echo htmlspecialchars($row['id_hewan']); ?></td>
 
                         <!-- Kolom HPP -->
-                        <td style="font-size: 15px;">Rp. <?php echo number_format($row['hpp'], 2, ',', '.'); ?></td>
+                        <td style="font-size: 15px;">Rp. <?php echo number_format($row['hpp'], 0, ',', '.'); ?></td>
 
                         <!-- Kolom Harga -->
-                        <td style="font-size: 15px;">Rp. <?php echo number_format($row['harga'], 2, ',', '.'); ?></td>
+                        <td style="font-size: 15px;">Rp. <?php echo number_format($row['harga'], 0, ',', '.'); ?></td>
 
 
 
@@ -339,16 +321,26 @@ if ($totalResult) {
                                 <p><strong>ID Hewan:</strong> <?= htmlspecialchars($row['id_hewan']); ?></p>
                                 <p><strong>Jenis Kelamin:</strong> <?= htmlspecialchars($row['jenis_kelamin']); ?></p>
                                 <p><strong>Jumlah:</strong> <?= htmlspecialchars($row['jumlah']); ?></p>
-                                <p><strong>HPP (Harga Pokok Pembelian):</strong> <?= htmlspecialchars($row['hpp']); ?></p>
-                                <p><strong>Harga:</strong> <?= htmlspecialchars($row['harga']); ?></p>
+                                <p><strong>HPP (Harga Pokok Pembelian):</strong> Rp.
+                                    <?= number_format($row['hpp'], 0, ',', '.'); ?>
+                                </p>
+                                <p><strong>Harga Penjualan:</strong> Rp. <?= number_format($row['harga'], 0, ',', '.'); ?>
+                                </p>
                                 <p><strong>Tanggal Pembelian:</strong> <?= htmlspecialchars($row['tanggal_pembelian']); ?>
                                 </p>
                                 <p><strong>tanggal Penjualan:</strong> <?= htmlspecialchars($row['tanggal_penjualan']); ?>
                                 </p>
-                                <p><strong>Total Pakan:</strong> <?= htmlspecialchars($row['total_pakan']); ?></p>
-                                <p><strong>Total Perawatan:</strong> <?= htmlspecialchars($row['total_perawatan']); ?></p>
-                                <p><strong>Total Keuntungan:</strong> <?= htmlspecialchars($row['total_keuntungan']); ?></p>
-                                <p><strong>Total Kerugian:</strong> <?= htmlspecialchars($row['total_kerugian']); ?></p>
+                                <p><strong>Total Pakan:</strong> Rp. <?= number_format($row['total_pakan'], 0, ',', '.'); ?>
+                                </p>
+                                <p><strong>Total Perawatan:</strong> Rp.
+                                    <?= number_format($row['total_perawatan'], 0, ',', '.'); ?>
+                                </p>
+                                <p><strong>Total Keuntungan:</strong> Rp.
+                                    <?= number_format($row['total_keuntungan'], 0, ',', '.'); ?>
+                                </p>
+                                <p><strong>Total Kerugian:</strong> Rp.
+                                    <?= number_format($row['total_kerugian'], 0, ',', '.'); ?>
+                                </p>
                             </div>
                             <footer class="w3-container">
                                 <button
@@ -360,7 +352,6 @@ if ($totalResult) {
                 <?php endwhile; ?>
             </table>
         </div>
-
 
         <!-- Modern Pagination with Slightly Rectangular Corners -->
         <div class="pagination-container">
@@ -377,7 +368,6 @@ if ($totalResult) {
             <!-- Next Button -->
             <a href="?page=<?php echo min($total_pages, $page + 1); ?>" class="pagination-button">&raquo;</a>
         </div>
-
         <!-- CSS Styles for Pagination with Slightly Rectangular Corners -->
         <style>
             .pagination-container {
@@ -419,30 +409,12 @@ if ($totalResult) {
             }
         </style>
 
-
-        <!-- Modal for Deletion Confirmation -->
-        <div id="deleteModal" class="w3-modal" style="align-items:center; padding-top: 15%;">
-            <div class="w3-modal-content w3-animate-top w3-card-4">
-                <header class="w3-container w3-red">
-                    <span onclick="closeModal()" class="w3-button w3-display-topright">&times;</span>
-                    <h2>Konfirmasi</h2>
-                </header>
-                <div class="w3-container">
-                    <p id="modalMessage">Apakah Anda yakin ingin menghapus data ini?</p>
-                    <div class="w3-right">
-                        <button class="w3-button w3-grey" onclick="closeModal()">Batal</button>
-                        <button class="w3-button w3-red" id="confirmDeleteButton">Hapus</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add New User Button -->
+        <!-- tombol untuk tambah -->
         <a href="tambah_labarugi.php" class="w3-btn w3-round-xlarge w3-green bottom-right">
-            <i class="fa fa-plus" style="font-size:30px;"></i>
+            <i class="fa fa-plus" style="font-size:30px"></i>
         </a>
 
-
+        <!-- JavaScript -->
         <script>
             function w3_open() {
                 document.getElementById("mySidebar").classList.add('show');
@@ -454,44 +426,45 @@ if ($totalResult) {
                 document.getElementById("sidebarOverlay").classList.remove('show');
             }
 
-            function deleteLabarugi(id_hasil_labarugi) {
+            function deleteLabarugi(id_labarugi) {
                 var modal = document.getElementById('deleteModal');
-                modal.style.display = 'block'; // Display the delete confirmation modal
+                modal.style.display = 'block'; // Tampilkan modal konfirmasi
 
-                var modalMessage = document.getElementById('modalMessage');
-                modalMessage.textContent = "Apakah Anda yakin ingin menghapus data ini?";
+                var modalMessage = modal.querySelector('p');
+                modalMessage.textContent = "Apakah Anda yakin ingin menghapus data laba rugi ini?";
 
-                var confirmButton = document.getElementById('confirmDeleteButton');
+                // Simpan nama hewan yang akan dihapus di button 'Hapus'
+                var confirmButton = modal.querySelector('.w3-button.w3-red');
                 confirmButton.onclick = function () {
-                    // Redirect to the PHP script for deletion
-                    window.location.href = "hasil_labarugi.php?action=delete&id=" + encodeURIComponent(id_hasil_labarugi);
+                    window.location.href = "hapus_labarugi.php?id_hasil_labarugi=" + encodeURIComponent(id_labarugi);
                 };
             }
 
-            function closeModal() {
-                document.getElementById('deleteModal').style.display = 'none';
-            }
-
-
             function searchItems() {
-                let input = document.getElementById('searchInput').value.toLowerCase();
-                let rows = document.querySelectorAll('.barang-row');
+                var input, filter, table, tr, td, i, txtValue;
+                input = document.getElementById("searchInput");
+                filter = input.value.toUpperCase();
+                table = document.querySelector("table");
+                tr = table.getElementsByClassName("labarugi-row");
 
-                rows.forEach(row => {
-                    let rowText = row.innerText.toLowerCase();
-                    if (rowText.includes(input)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
+                for (i = 0; i < tr.length; i++) {
+                    td = tr[i].getElementsByTagName("td")[0];
+                    if (td) {
+                        txtValue = td.textContent || td.innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                        } else {
+                            tr[i].style.display = "none";
+                        }
                     }
-                });
+                }
             }
+
 
         </script>
+    </div>
 </body>
 
 </html>
 
-<?php
-mysqli_close($conn);
-?>
+<?php mysqli_close($conn); ?>

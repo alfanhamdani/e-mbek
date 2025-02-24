@@ -19,41 +19,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $harga = floatval($_POST['harga']);
     $tanggal_pembelian = $_POST['tanggal_pembelian'];
     $tanggal_penjualan = $_POST['tanggal_penjualan'];
-    $total_keuntungan = $harga > $hpp ? $harga - $hpp : 0;
-    $total_kerugian = $hpp > $harga ? $hpp - $harga : 0;
+    $total_pakan = floatval($_POST['total_pakan']);
+    $total_perawatan = floatval($_POST['total_perawatan']);
+    $total_keuntungan = floatval($_POST['total_keuntungan']);
+    $total_kerugian = floatval($_POST['total_kerugian']);
     $date_record = date('Y-m-d H:i:s'); // Waktu saat ini
     $user_record = $username;
     $void = 0;
 
-    // Simpan data ke tabel lain (contoh: tabel mbek_hasil_labarugi)
-    $sql = "INSERT INTO mbek_hasil_labarugi (
-                id_hewan, jenis_kelamin, jumlah, hpp, harga, 
-                tanggal_pembelian, tanggal_penjualan, total_keuntungan, 
-                total_kerugian, date_record, 
-                user_record, void
-            ) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param(
-        "isiddsssddsi",
-        $id_hewan,
-        $jenis_kelamin,
-        $jumlah,
-        $hpp,
-        $harga,
-        $tanggal_pembelian,
-        $tanggal_penjualan,
-        $total_keuntungan,
-        $total_kerugian,
-        $date_record,
-        $user_record,
-        $void
-    );
+    // // Simpan data ke tabel lain (contoh: tabel mbek_hasil_labarugi)
+    // $sql = "INSERT INTO mbek_hasil_labarugi (
+    //             id_hewan, jenis_kelamin, jumlah, hpp, harga, 
+    //             tanggal_pembelian, tanggal_penjualan, total_pakan, total_perawatan,
+    //             total_keuntungan, total_kerugian, date_record, 
+    //             user_record, void
+    //         ) 
+    //         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // $stmt = $conn->prepare($sql);
+    // $stmt->bind_param(
+    //     "isiddsssddddsi",
+    //     $id_hewan,
+    //     $jenis_kelamin,
+    //     $jumlah,
+    //     $hpp,
+    //     $harga,
+    //     $tanggal_pembelian,
+    //     $tanggal_penjualan,
+    //     $total_pakan,
+    //     $total_perawatan,
+    //     $total_keuntungan,
+    //     $total_kerugian,
+    //     $date_record,
+    //     $user_record,
+    //     $void
+    // );
+    // if ($stmt->execute()) {
+    //     echo "<script>alert('Data berhasil disimpan!');</script>";
+    // } else {
+    //     echo "<script>alert('Gagal menyimpan data: " . $conn->error . "');</script>";
+    // }
 
-    if ($stmt->execute()) {
-        echo "<script>alert('Data berhasil disimpan!');</script>";
+    // Query untuk menyimpan data ke database
+    $query = "INSERT INTO mbek_hasil_labarugi (id_hewan, jenis_kelamin, jumlah, hpp, harga, tanggal_pembelian, tanggal_penjualan, total_pakan, total_perawatan, total_keuntungan, total_kerugian, date_record, user_record, void) 
+              VALUES ('$id_hewan', '$jenis_kelamin', '$jumlah', '$hpp', '$harga', '$tanggal_pembelian', '$tanggal_penjualan', '$total_pakan', '$total_perawatan', '$total_keuntungan', '$total_kerugian', '$date_record', '$user_record', '$void')";
+
+    if (mysqli_query($conn, $query)) {
+        header('Location: hasil_labarugi.php');
+        exit;
     } else {
-        echo "<script>alert('Gagal menyimpan data: " . $conn->error . "');</script>";
+        echo "Error: " . mysqli_error($conn);
     }
 
     $stmt->close();
@@ -182,10 +196,10 @@ $result = $conn->query($sql);
         <input type="number" name="harga" id="harga" step="0.01" required><br><br>
 
         <label for="tanggal_pembelian">Tanggal Pembelian</label>
-        <input type="datetime-local" name="tanggal_pembelian" id="tanggal_pembelian" readonly><br><br>
+        <input type="date" name="tanggal_pembelian" id="tanggal_pembelian" readonly><br><br>
 
         <label for="tanggal_penjualan">Tanggal Penjualan</label>
-        <input type="datetime-local" name="tanggal_penjualan" id="tanggal_penjualan"><br><br>
+        <input type="date" name="tanggal_penjualan" id="tanggal_penjualan"><br><br>
 
         <label for="harga_pakan">Total Pakan</label>
         <input type="number" name="harga_pakan" id="harga_pakan" step="0.01" readonly><br><br>

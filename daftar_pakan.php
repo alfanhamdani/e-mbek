@@ -14,7 +14,7 @@ $username = $_SESSION['username']; // Ambil username pengguna dari sesi
 $search_keyword = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
 // Query untuk menghitung total jumlah pakan dengan pencarian
-$sql_total_pakan = "SELECT COUNT(*) AS total_pakan FROM mbek_pakan WHERE id_pakan LIKE '%$search_keyword%'";
+$sql_total_pakan = "SELECT COUNT(*) AS total_pakan FROM mbek_pakan WHERE id_hewan LIKE '%$search_keyword%'";
 $result_total = mysqli_query($conn, $sql_total_pakan);
 
 if ($result_total) {
@@ -40,7 +40,7 @@ if ($page < 1) {
 $offset = ($page - 1) * $records_per_page;
 
 // Query untuk mengambil data pakan dengan pencarian dan pagination
-$queryPakan = "SELECT * FROM mbek_pakan WHERE id_hewan LIKE '%$search_keyword%' ORDER BY jenis_pakan DESC LIMIT $offset, $records_per_page";
+$queryPakan = "SELECT * FROM mbek_pakan WHERE id_hewan LIKE '%$search_keyword%' ORDER BY id_pakan DESC LIMIT $offset, $records_per_page";
 $result = mysqli_query($conn, $queryPakan);
 ?>
 
