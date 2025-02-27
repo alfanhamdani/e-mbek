@@ -275,16 +275,16 @@ $result = mysqli_query($conn, $queryPakan);
         <div class="w3-responsive">
             <table class="w3-table-all w3-centered" border="1" style="border-collapse: collapse; width: 100%;">
                 <tr class="w3-green">
-                    <th>Id Hewan</th>
-                    <th>Jenis Pakan</th>
-                    <th>Harga Pakan</th>
+                    <th>Data Pakan</th>
                     <th>Aksi</th>
                 </tr>
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
                     <tr class="pakan-row">
-                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['id_hewan']); ?></td>
-                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jenis_pakan']); ?></td>
-                        <td style="font-size: 15px;">Rp. <?php echo number_format($row['harga_pakan'], 0, ',', '.'); ?></td>
+                        <td style="text-align: left; padding: 10px;">
+                            <strong>ID Hewan:</strong> <?php echo htmlspecialchars($row['id_hewan']); ?><br>
+                            <strong>Jenis Pakan:</strong> <?php echo htmlspecialchars($row['jenis_pakan']); ?><br>
+                            <strong>Harga:</strong> Rp. <?php echo number_format($row['harga_pakan'], 0, ',', '.'); ?>
+                        </td>
 
                         <td style="font-size: 14px; text-align: center;">
                             <!-- Tombol Lihat Lainnya -->

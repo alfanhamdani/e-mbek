@@ -23,22 +23,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_modified = $username;
     $date_modified = date('Y-m-d H:i:s');
 
-    $gambar = $data['gambar']; // Default gambar lama
+    $gambar = $data['gambar']; // Gunakan gambar lama jika tidak ada yang baru diunggah
 
     if (!empty($_FILES['gambar']['name'])) {
         $target_dir = "uploads/";
-        $target_file = $target_dir . basename($_FILES['gambar']['name']);
+        $target_file = $target_dir . time() . "_" . basename($_FILES['gambar']['name']); // Tambahkan timestamp untuk unik
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
         $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
 
         if (in_array($imageFileType, $allowed_types)) {
             if (move_uploaded_file($_FILES['gambar']['tmp_name'], $target_file)) {
                 $gambar = $target_file; // Update gambar jika berhasil diunggah
+
+                // Hapus gambar lama jika ada
+                if (!empty($data['gambar']) && file_exists($data['gambar'])) {
+                    unlink($data['gambar']);
+                }
             } else {
                 echo "Error mengunggah gambar.";
+                exit;
             }
         } else {
             echo "Format gambar tidak didukung.";
+            exit;
         }
     }
 
@@ -219,38 +226,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
 
-    <form method="post" action="" nctype="multipart/form-data"
+    <form method="post" action="" enctype="multipart/form-data"
         class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
         <label>ID Hewan</label>
         <input type="text" class="w3-input w3-border" name="id_hewan" value="<?= $data['id_hewan'] ?>" readonly><br>
+
         <label>Jenis Kelamin</label>
         <select class="w3-input w3-border" id="jenis_kelamin" name="jenis_kelamin" required>
             <option value="Jantan" <?= $data['jenis_kelamin'] === 'Jantan' ? 'selected' : '' ?>>Jantan</option>
             <option value="Betina" <?= $data['jenis_kelamin'] === 'Betina' ? 'selected' : '' ?>>Betina</option>
         </select><br>
+
         <label>Jumlah</label>
         <input class="w3-input w3-border" type="number" id="jumlah" name="jumlah" value="<?= $data['jumlah'] ?>"
             required><br>
+
         <label>Harga</label>
         <input class="w3-input w3-border" type="text" id="harga" name="harga"
             value="<?= number_format($data['harga'], 0, ',', '.') ?>" required oninput="formatRibuan(this)"><br>
+
         <label>Tanggal</label>
         <input class="w3-input w3-border" type="date" id="tanggal" name="tanggal" value="<?= $data['tanggal'] ?>"
             required><br>
+
         <label>Gambar</label><br>
-        <input type="file" name="gambar" accept="image/*">
+        <input class="w3-input w3-border" type="file" name="gambar">
         <p>Gambar saat ini:</p>
         <?php if (!empty($data['gambar'])): ?>
             <img src="<?= $data['gambar'] ?>" width="100" alt="Gambar Hewan">
         <?php endif; ?>
         <br><br>
+
         <div class="w3-half">
             <a href="daftar_hewan.php" class="w3-gray w3-button w3-container w3-padding-16"
                 style="width: 100%;">Kembali</a>
         </div>
         <div class="w3-half">
-            <button type="submit" id="updateButton" class="w3-button w3-blue w3-container w3-padding-16"
-                style="width: 100%;" disabled>Simpan</button>
+            <button type="submit" class="w3-button w3-blue w3-container w3-padding-16"
+                style="width: 100%;">Simpan</button>
         </div>
     </form>
 
@@ -280,39 +293,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 w3_close();
             }
         }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            var originalValues = {
-                jenis_kelamin: "<?= $data['jenis_kelamin']; ?>",
-                jumlah: "<?= $data['jumlah']; ?>",
-                harga: "<?= $data['harga']; ?>",
-                tanggal: "<?= $data['tanggal']; ?>"
-            };
-
-            function checkChanges() {
-                var currentValues = {
-                    jenis_kelamin: document.getElementById('jenis_kelamin').value,
-                    jumlah: document.getElementById('jumlah').value,
-                    harga: document.getElementById('harga').value,
-                    tanggal: document.getElementById('tanggal').value
-                };
-
-                var updateButton = document.getElementById('updateButton');
-
-                // Periksa jika ada perubahan dari nilai awal
-                if (JSON.stringify(originalValues) !== JSON.stringify(currentValues)) {
-                    updateButton.disabled = false;
-                } else {
-                    updateButton.disabled = true;
-                }
-            }
-
-            // Tambahkan event listener untuk mendeteksi perubahan
-            document.getElementById('jenis_kelamin').addEventListener('change', checkChanges);
-            document.getElementById('jumlah').addEventListener('input', checkChanges);
-            document.getElementById('harga').addEventListener('input', checkChanges);
-            document.getElementById('tanggal').addEventListener('change', checkChanges);
-        });
 
 
         // pesan untuk inputan yang tidak di isi/kosong

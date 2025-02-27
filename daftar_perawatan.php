@@ -273,17 +273,15 @@ $result = mysqli_query($conn, $queryPerawatan);
         <div class="w3-responsive">
             <table class="w3-table-all w3-centered" border="1" style="border-collapse: collapse; width: 100%;">
                 <tr class="w3-green">
-                    <th>ID hewan</th>
-                    <th>Jenis Perawatan</th>
-                    <th>Harga Perawatan</th>
+                    <th>Data Perawatan</th>
                     <th>Aksi</th>
                 </tr>
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
                     <tr class="perawatan-row">
-                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['id_hewan']); ?></td>
-                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jenis_perawatan']); ?></td>
-                        <td style="font-size: 15px;">Rp.
-                            <?php echo number_format($row['harga_perawatan'], 0, ',', '.'); ?>
+                        <td style="text-align: left; padding: 10px;">
+                            <strong>ID Hewan:</strong> <?php echo htmlspecialchars($row['id_hewan']); ?><br>
+                            <strong>Jenis Perawatan:</strong> <?php echo htmlspecialchars($row['jenis_perawatan']); ?><br>
+                            <strong>Harga:</strong> Rp. <?php echo number_format($row['harga_perawatan'], 0, ',', '.'); ?>
                         </td>
                         <td style="font-size: 14px; text-align: center;">
                             <!-- Tombol Lihat Lainnya -->
@@ -320,7 +318,7 @@ $result = mysqli_query($conn, $queryPerawatan);
                                     <?= number_format($row['harga_perawatan'], 0, ',', '.'); ?>
                                 </p>
                                 <p><strong>Tanggal Perawatan:</strong> <?= htmlspecialchars($row['tanggal']); ?></p>
-                                <p><strong>Gambar Perawatan:</strong><br>
+                                <p><strong>Gambar Perawatan:</strong>
                                     <?php if (!empty($row['gambar'])): ?>
                                         <img src="<?= $row['gambar'] ?>" width="100" alt="Gambar Perawatan">
                                     <?php endif; ?>

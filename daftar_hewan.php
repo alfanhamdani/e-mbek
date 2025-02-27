@@ -275,19 +275,49 @@ $result = mysqli_query($conn, $queryHewan);
         <div class="w3-responsive">
             <table class="w3-table-all w3-centered" border="1" style="border-collapse: collapse; width: 100%;">
                 <tr class="w3-green">
-                    <th>ID Hewan</th>
-                    <th>Jenis Kelamin</th>
-                    <th>Harga</th>
-                    <th>Kode QR</th>
+                    <th>Data Hewan</th>
                     <th>Aksi</th>
                 </tr>
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
                     <tr class="hewan-row">
-                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['id_hewan']); ?></td>
-                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['jenis_kelamin']); ?></td>
-                        <td style="font-size: 15px;">Rp. <?php echo number_format($row['harga'], 0, ',', '.'); ?></td>
-                        <td>
-                            <img src="<?php echo $row['qr_link']; ?>" alt="QR Code" width="100" height="100">
+                        <td style="text-align: left; padding: 10px;">
+                            <strong>ID Hewan:</strong> <?php echo htmlspecialchars($row['id_hewan']); ?><br>
+                            <strong>Jenis Kelamin:</strong> <?php echo htmlspecialchars($row['jenis_kelamin']); ?><br>
+                            <strong>Harga:</strong> Rp. <?php echo number_format($row['harga'], 0, ',', '.'); ?>
+                            <p><b>Kode QR:</b>
+                                <?php if ($row['qr_link']) { ?>
+                                    <button
+                                        onclick="document.getElementById('modal-qr-<?php echo $row['id_hewan']; ?>').style.display='block'"
+                                        class="w3-button w3-blue w3-round w3-small">
+                                        <i class="fa fa-qrcode"></i> Lihat QR
+                                    </button>
+
+                                    <!-- Modal QR Code -->
+                                <div id="modal-qr-<?php echo $row['id_hewan']; ?>" class="w3-modal">
+                                    <div class="w3-modal-content w3-animate-zoom w3-card-4">
+                                        <header class="w3-container w3-center w3-blue">
+                                            <span
+                                                onclick="document.getElementById('modal-qr-<?php echo $row['id_hewan']; ?>').style.display='none'"
+                                                class="w3-button w3-display-topright">&times;</span>
+                                            <h3><b>Kode QR</b></h3>
+                                        </header>
+                                        <div class="w3-container w3-padding">
+                                            <img src="<?php echo htmlspecialchars($row['qr_link']); ?>" alt="QR Code"
+                                                class="w3-image"
+                                                style="width: 300px; height: 300px; display: block; margin: auto;">
+                                        </div>
+                                        <footer class="w3-container w3-center w3-padding">
+                                            <button
+                                                onclick="document.getElementById('modal-qr-<?php echo $row['id_hewan']; ?>').style.display='none'"
+                                                class="w3-button w3-red w3-right">Tutup</button>
+                                        </footer>
+                                    </div>
+                                </div>
+                            <?php } else { ?>
+                                <span class="w3-text-red">Belum Ada</span>
+                            <?php } ?>
+                            </p>
+
                         </td>
 
                         <td style="font-size: 14px; text-align: center;">

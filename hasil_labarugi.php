@@ -274,22 +274,16 @@ $result = mysqli_query($conn, $queryLabarugi);
         <div class="w3-responsive">
             <table class="w3-table-all w3-centered" border="1" style="border-collapse: collapse; width: 100%;">
                 <tr class="w3-green">
-                    <th>ID Hewan</th>
-                    <th>HPP</th>
-                    <th>Harga</th>
+                    <th>Data Laba Rugi</th>
                     <th>Aksi</th>
                 </tr>
                 <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                    <tr class="barang-row">
-                        <!-- Kolom ID Hewan -->
-                        <td style="font-size: 15px;"><?php echo htmlspecialchars($row['id_hewan']); ?></td>
-
-                        <!-- Kolom HPP -->
-                        <td style="font-size: 15px;">Rp. <?php echo number_format($row['hpp'], 0, ',', '.'); ?></td>
-
-                        <!-- Kolom Harga -->
-                        <td style="font-size: 15px;">Rp. <?php echo number_format($row['harga'], 0, ',', '.'); ?></td>
-
+                    <tr class="labarugi-row">
+                        <td style="text-align: left; padding: 10px;">
+                            <strong>ID Hewan: </strong><?php echo htmlspecialchars($row['id_hewan']); ?><br>
+                            <strong>HPP:</strong> Rp. <?php echo number_format($row['hpp'], 0, ',', '.'); ?><br>
+                            <strong>Harga:</strong> Rp. <?php echo number_format($row['harga'], 0, ',', '.'); ?>
+                        </td>
 
 
                         <td style="font-size: 14px; text-align: center;">

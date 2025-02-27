@@ -242,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 style="width: 100%;">Kembali</a>
         </div>
         <div class="w3-half">
-            <button type="submit" id="updateButton" class="w3-button w3-blue w3-container w3-padding-16"
+            <button type="submit" class="w3-button w3-blue w3-container w3-padding-16"
                 style="width: 100%;">Simpan</button>
         </div>
     </form>
@@ -271,52 +271,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!event.target.closest('#mySidebar') && !event.target.closest('.w3-xlarge')) {
                 w3_close();
             }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            // Fungsi untuk menghapus titik pada angka (pemisah ribuan)
-            function cleanNumber(value) {
-                return value.replace(/\./g, '');
-            }
-
-            // Simpan nilai awal dari input
-            var originalValues = {
-                id_hewan: document.getElementById('id_hewan').value.trim(),
-                jenis_pakan: document.getElementById('jenis_pakan').value.trim(),
-                berat: document.getElementById('berat').value.trim(),
-                harga_pakan: cleanNumber(document.getElementById('harga_pakan').value.trim()),
-                tanggal: document.getElementById('tanggal').value.trim()
-            };
-
-            // Fungsi untuk memeriksa perubahan
-            function checkChanges() {
-                var currentValues = {
-                    id_hewan: document.getElementById('id_hewan').value.trim(),
-                    jenis_pakan: document.getElementById('jenis_pakan').value.trim(),
-                    berat: document.getElementById('berat').value.trim(),
-                    harga_pakan: cleanNumber(document.getElementById('harga_pakan').value.trim()),
-                    tanggal: document.getElementById('tanggal').value.trim()
-                };
-
-                var updateButton = document.getElementById('updateButton');
-                updateButton.disabled = JSON.stringify(originalValues) === JSON.stringify(currentValues);
-            }
-
-            // Tambahkan event listener untuk mendeteksi perubahan
-            document.getElementById('id_hewan').addEventListener('change', checkChanges);
-            document.getElementById('jenis_pakan').addEventListener('change', checkChanges);
-            document.getElementById('berat').addEventListener('input', checkChanges);
-            document.getElementById('harga_pakan').addEventListener('input', checkChanges);
-            document.getElementById('tanggal').addEventListener('change', checkChanges);
-
-            // Pastikan tombol Simpan awalnya dinonaktifkan
-            checkChanges();
-        });
-
-        // Fungsi untuk memformat angka dengan pemisah ribuan
-        function formatRibuan(input) {
-            let angka = input.value.replace(/\D/g, ''); // Hapus karakter non-angka
-            input.value = angka.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Tambahkan titik ribuan
         }
 
         // pesan untuk inputan yang tidak di isi/kosong
