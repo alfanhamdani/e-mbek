@@ -40,123 +40,6 @@ $data = mysqli_fetch_assoc($result);
     <link rel="icon" href="logo e-mbek.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        .action-icons {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 10px;
-        }
-
-        .bottom-right {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .bottom-right i {
-            margin: 0;
-        }
-
-        .w3-sidebar {
-            z-index: 1100;
-            position: fixed;
-            left: -250px;
-            width: 250px;
-            height: 100%;
-            overflow-x: hidden;
-            transition: 0.5s;
-            padding-top: 0;
-        }
-
-        .w3-sidebar.show {
-            left: 0;
-        }
-
-        .w3-sidebar.hide {
-            left: -250px;
-        }
-
-        .w3-sidebar a {
-            padding: 10px;
-            text-decoration: none;
-            font-size: 18px;
-            color: black;
-            display: block;
-        }
-
-        .w3-sidebar a:hover {
-            background-color: #ddd;
-        }
-
-        .w3-sidebar .close-button {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            padding: 15px;
-            background-color: #f44336;
-            color: white;
-            font-size: 20px;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-        }
-
-        .w3-sidebar-overlay {
-            display: none;
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
-
-        .w3-sidebar-overlay.show {
-            display: block;
-        }
-
-        @media (max-width: 600px) {
-            .w3-table-all {
-                table-layout: fixed;
-                width: 100%;
-            }
-
-            .w3-table-all th,
-            .w3-table-all td {
-                word-wrap: break-word;
-            }
-
-            .w3-table-all th:nth-of-type(1),
-            .w3-table-all td:nth-of-type(1) {
-                width: 40%;
-            }
-
-            .w3-table-all th:nth-of-type(2),
-            .w3-table-all td:nth-of-type(2) {
-                width: 30%;
-            }
-
-            .w3-table-all th:nth-of-type(3),
-            .w3-table-all td:nth-of-type(3) {
-                width: 30%;
-            }
-        }
-
-        .action-icons a {
-            margin: 5px;
-        }
-    </style>
 </head>
 
 <body class="w3-light-grey">
@@ -165,8 +48,6 @@ $data = mysqli_fetch_assoc($result);
     <!-- Page Content -->
     <div id="mainContent" style="margin-left: 0; transition: margin-left 0.5s;">
         <div class="w3-green" style="display: flex; align-items: center; padding: 10px;">
-            <a href="scan_code.php" class="w3-button w3-white w3-margin-bottom"><i class="fa fa-arrow-left"></i>
-                Kembali</a>
             <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
                 <h3
                     style="margin: 0; line-height: 1.5rem; text-align: center; font-size: 25px; margin-top:5px; margin-bottom: 10px;">
@@ -180,37 +61,18 @@ $data = mysqli_fetch_assoc($result);
             <p><b>ID Hewan:</b> <?= $data['id_hewan']; ?></p>
             <p><b>Jenis Kelamin:</b> <?= $data['jenis_kelamin']; ?></p>
             <p><b>Jumlah:</b> <?= $data['jumlah']; ?></p>
-            <p><b>Harga:</b> Rp. <?= number_format($data['harga'], 2, ',', '.'); ?></p>
+            <p><b>Harga:</b> Rp. <?= number_format($data['harga'], 0, ',', '.'); ?></p>
             <p><b>Tanggal:</b> <?= $data['tanggal']; ?></p>
             <p><b>Dicatat oleh:</b> <?= $data['user_record']; ?></p>
             <p><b>Terakhir diubah oleh:</b> <?= $data['user_modified'] ?? '-'; ?></p>
             <p><b>Gambar: </b><img src="<?= htmlspecialchars($data['gambar']); ?>" alt="Gambar Hewan"
-                    style="width: 100px; height: auto;"></p>
-            <p><b>QR Link:</b>
-                <?php if ($data['qr_link']) { ?>
-                    <a href="<?= $data['qr_link']; ?>" target="_blank" class="w3-button w3-blue">
-                        <i class="fa fa-qrcode"></i> Lihat QR
-                    </a>
-                <?php } else { ?>
-                    <span class="w3-text-red">Belum Ada</span>
-                <?php } ?>
-            </p>
+                    style="width: 100px; height: auto;"></p><br>
 
+            <a href="scan_code.php" class="w3-button w3-blue w3-margin-bottom"><i class="fa fa-arrow-left"></i>
+                Kembali</a>
         </div>
     </div>
 
-
-    <script>
-        function w3_open() {
-            document.getElementById("mySidebar").classList.add('show');
-            document.getElementById("sidebarOverlay").classList.add('show');
-        }
-
-        function w3_close() {
-            document.getElementById("mySidebar").classList.remove('show');
-            document.getElementById("sidebarOverlay").classList.remove('show');
-        }
-    </script>
 </body>
 
 </html>
