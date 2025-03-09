@@ -230,7 +230,7 @@ $result = mysqli_query($conn, $queryPakan);
 
         <!-- CSS untuk modal konfirmasi delete -->
         <style>
-            .w3-modal {
+            #deleteModal {
                 display: none;
                 /* Sembunyikan modal secara default */
                 position: fixed;
@@ -271,61 +271,101 @@ $result = mysqli_query($conn, $queryPakan);
         </div>
 
 
-        <!-- Table of Users -->
+        <?php
+        // Mengelompokkan data berdasarkan id_hewan
+        $pakanData = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $pakanData[$row['id_hewan']][] = $row;
+        }
+        ?>
+
         <div class="w3-responsive">
             <table class="w3-table-all w3-centered" border="1" style="border-collapse: collapse; width: 100%;">
                 <tr class="w3-green">
                     <th>Data Pakan</th>
                     <th>Aksi</th>
                 </tr>
-                <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-                    <tr class="pakan-row">
-                        <td style="text-align: left; padding: 10px;">
-                            <strong>ID Hewan:</strong> <?php echo htmlspecialchars($row['id_hewan']); ?><br>
-                            <strong>Jenis Pakan:</strong> <?php echo htmlspecialchars($row['jenis_pakan']); ?><br>
-                            <strong>Harga:</strong> Rp. <?php echo number_format($row['harga_pakan'], 0, ',', '.'); ?>
-                        </td>
 
+                <?php foreach ($pakanData as $id_hewan => $pakans) { ?>
+                    <tr>
+                        <td style="text-align: left; padding: 10px;">
+                            <strong>ID Hewan:</strong> <?php echo htmlspecialchars($id_hewan); ?><br>
+                            <strong>Jenis Pakan:</strong> <?php echo htmlspecialchars($pakans[0]['jenis_pakan']); ?><br>
+                            <strong>Harga:</strong> Rp. <?php echo number_format($pakans[0]['harga_pakan'], 0, ',', '.'); ?>
+                        </td>
                         <td style="font-size: 14px; text-align: center;">
-                            <!-- Tombol Lihat Lainnya -->
-                            <button
-                                onclick="document.getElementById('detailModal<?= $row['id_pakan'] ?>').style.display='block'"
+                            <button onclick="document.getElementById('detailModal<?= $id_hewan ?>').style.display='block'"
                                 class="w3-button w3-grey w3-round w3-small">
                                 Lihat Lainnya
                             </button>
-                            <a href="edit_pakan.php?id_pakan=<?php echo $row['id_pakan']; ?>"
-                                class="material-icons w3-yellow w3-btn w3-button w3-round"
-                                style="font-size: 15px;">&#xe22b;</a>
-                            <a href="#"
-                                onclick="deletePakan('<?php echo htmlspecialchars($row['id_pakan']); ?>', '<?php echo htmlspecialchars($row['id_pakan']); ?>')"
-                                class="fa fa-trash w3-btn w3-button w3-round w3-red" style="font-size: 15px;"></a>
+
+                            <!-- Tombol Hapus Semua -->
+                            <button onclick="bukaModal(<?= $id_hewan ?>)" class="w3-button w3-red w3-round w3-small">
+                                Hapus Semua
+                            </button>
                         </td>
                     </tr>
 
-                    <!-- Modal Detail -->
-                    <div id="detailModal<?= $row['id_pakan'] ?>" class="w3-modal">
-                        <div class="w3-modal-content w3-card-4 w3-animate-top" style="max-width:600px">
-                            <header class="w3-container w3-center w3-green">
-                                <span
-                                    onclick="document.getElementById('detailModal<?= $row['id_pakan'] ?>').style.display='none'"
-                                    class="w3-button w3-display-topright">&times;</span>
-                                <h3>
-                                    <b>Detail Pakan</b>
-                                </h3>
+                    <!-- Modal Konfirmasi -->
+                    <div id="modalHapus<?= $id_hewan ?>" class="w3-modal" style="align-items:center; padding-top: 15%;">
+                        <div class="w3-modal-content w3-animate-top w3-card-4">
+                            <header class="w3-container w3-red">
+                                <h2>Konfirmasi</h2>
                             </header>
                             <div class="w3-container">
-                                <p><strong>ID Pakan:</strong> <?= htmlspecialchars($row['id_pakan']); ?></p>
-                                <p><strong>ID Hewan:</strong> <?= htmlspecialchars($row['id_hewan']); ?></p>
-                                <p><strong>Jenis Pakan:</strong> <?= htmlspecialchars($row['jenis_pakan']); ?></p>
-                                <p><strong>Berat(g/kg):</strong> <?= htmlspecialchars($row['berat']); ?></p>
-                                <p><strong>Harga Pakan:</strong> Rp.
-                                    <?= number_format($row['harga_pakan'], 0, ',', '.'); ?>
+                                <p>Apakah Anda yakin ingin menghapus semua data pakan untuk ID Hewan
+                                    <strong><?= $id_hewan ?></strong>?
                                 </p>
-                                <p><strong>Tanggal:</strong> <?= htmlspecialchars($row['tanggal']); ?></p>
+                                <div class="w3-right">
+                                    <form action="hapus_semua_pakan.php" method="POST">
+                                        <input type="hidden" name="id_hewan" value="<?= $id_hewan ?>">
+                                        <button type="button" onclick="tutupModal(<?= $id_hewan ?>)"
+                                            class="w3-button w3-grey w3-round">Batal</button>
+                                        <button type="submit" class="w3-button w3-red w3-round">Ya, Hapus</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function bukaModal(id) {
+                            document.getElementById('modalHapus' + id).style.display = 'block';
+                        }
+
+                        function tutupModal(id) {
+                            document.getElementById('modalHapus' + id).style.display = 'none';
+                        }
+                    </script>
+
+                    <!-- Modal Detail untuk setiap ID Hewan -->
+                    <div id="detailModal<?= $id_hewan ?>" class="w3-modal">
+                        <div class="w3-modal-content w3-card-4 w3-animate-top" style="max-width:600px">
+                            <header class="w3-container w3-center w3-green">
+                                <span onclick="document.getElementById('detailModal<?= $id_hewan ?>').style.display='none'"
+                                    class="w3-button w3-display-topright">&times;</span>
+                                <h4><b>Detail Pakan - ID Hewan: <?= htmlspecialchars($id_hewan) ?></b></h4>
+                            </header>
+                            <div class="w3-container">
+                                <?php foreach ($pakans as $row) { ?>
+                                    <p><strong>ID Pakan:</strong> <?= htmlspecialchars($row['id_pakan']); ?></p>
+                                    <p><strong>ID Hewan:</strong> <?= htmlspecialchars($row['id_hewan']); ?></p>
+                                    <p><strong>Jenis Pakan:</strong> <?= htmlspecialchars($row['jenis_pakan']); ?></p>
+                                    <p><strong>Berat(g/kg):</strong> <?= htmlspecialchars($row['berat']); ?></p>
+                                    <p><strong>Harga Pakan:</strong> Rp. <?= number_format($row['harga_pakan'], 0, ',', '.'); ?>
+                                    </p>
+                                    <p><strong>Tanggal:</strong> <?= htmlspecialchars($row['tanggal']); ?></p>
+                                    <a href="edit_pakan.php?id_pakan=<?php echo $row['id_pakan']; ?>"
+                                        class="material-icons w3-yellow w3-btn w3-button w3-round"
+                                        style="font-size: 15px;">&#xe22b;</a>
+                                    <a href="#" onclick="deletePakan('<?php echo htmlspecialchars($row['id_pakan']); ?>')"
+                                        class="fa fa-trash w3-btn w3-button w3-round w3-red" style="font-size: 15px;"></a>
+                                    <hr>
+                                <?php } ?>
                             </div>
                             <footer class="w3-container">
                                 <button
-                                    onclick="document.getElementById('detailModal<?= $row['id_pakan'] ?>').style.display='none'"
+                                    onclick="document.getElementById('detailModal<?= $id_hewan ?>').style.display='none'"
                                     class="w3-button w3-red w3-right">Tutup</button>
                             </footer>
                         </div>
@@ -411,8 +451,8 @@ $result = mysqli_query($conn, $queryPakan);
                 var modal = document.getElementById('deleteModal');
                 modal.style.display = 'block'; // Tampilkan modal konfirmasi
 
-                var modalMessage = modal.querySelector('p');
-                modalMessage.textContent = "Apakah Anda yakin ingin menghapus pakan ini?";
+                // var modalMessage = modal.querySelector('p');
+                // modalMessage.textContent = "Apakah Anda yakin ingin menghapus pakan ini?";
 
                 // Simpan nama hewan yang akan dihapus di button 'Hapus'
                 var confirmButton = modal.querySelector('.w3-button.w3-red');

@@ -40,7 +40,7 @@ if ($page < 1) {
 $offset = ($page - 1) * $records_per_page;
 
 // Query untuk mengambil data perawatan dengan pencarian dan pagination
-$queryPerawatan = "SELECT * FROM mbek_perawatan WHERE id_hewan LIKE '%$search_keyword%' ORDER BY jenis_perawatan DESC LIMIT $offset, $records_per_page";
+$queryPerawatan = "SELECT * FROM mbek_perawatan WHERE id_hewan LIKE '%$search_keyword%' ORDER BY id_perawatan DESC LIMIT $offset, $records_per_page";
 $result = mysqli_query($conn, $queryPerawatan);
 ?>
 
@@ -229,7 +229,7 @@ $result = mysqli_query($conn, $queryPerawatan);
 
         <!-- CSS untuk modal konfirmasi delete -->
         <style>
-            .w3-modal {
+            #deleteModal {
                 display: none;
                 /* Sembunyikan modal secara default */
                 position: fixed;
@@ -269,6 +269,17 @@ $result = mysqli_query($conn, $queryPerawatan);
             <span class="w3-bar-item">Total: <?php echo $totalPerawatan; ?> Perawatan</span>
         </div>
 
+        <?php
+        $perawatanData = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $id_hewan = $row['id_hewan'];
+            if (!isset($perawatanData[$id_hewan])) {
+                $perawatanData[$id_hewan] = [];
+            }
+            $perawatanData[$id_hewan][] = $row;
+        }
+        ?>
+
         <!-- Table of Users -->
         <div class="w3-responsive">
             <table class="w3-table-all w3-centered" border="1" style="border-collapse: collapse; width: 100%;">
@@ -276,56 +287,94 @@ $result = mysqli_query($conn, $queryPerawatan);
                     <th>Data Perawatan</th>
                     <th>Aksi</th>
                 </tr>
-                <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+                <?php foreach ($perawatanData as $id_hewan => $perawatanList) { ?>
                     <tr class="perawatan-row">
                         <td style="text-align: left; padding: 10px;">
-                            <strong>ID Hewan:</strong> <?php echo htmlspecialchars($row['id_hewan']); ?><br>
-                            <strong>Jenis Perawatan:</strong> <?php echo htmlspecialchars($row['jenis_perawatan']); ?><br>
-                            <strong>Harga:</strong> Rp. <?php echo number_format($row['harga_perawatan'], 0, ',', '.'); ?>
+                            <strong>ID Hewan:</strong> <?php echo htmlspecialchars($id_hewan); ?><br>
+                            <strong>Jenis Perawatan:</strong>
+                            <?php echo htmlspecialchars($perawatanList[0]['jenis_perawatan']); ?><br>
+                            <strong>Harga:</strong> Rp.
+                            <?php echo number_format($perawatanList[0]['harga_perawatan'], 0, ',', '.'); ?>
                         </td>
                         <td style="font-size: 14px; text-align: center;">
                             <!-- Tombol Lihat Lainnya -->
-                            <button
-                                onclick="document.getElementById('detailModal<?= $row['id_perawatan'] ?>').style.display='block'"
+                            <button onclick="document.getElementById('detailModal<?= $id_hewan ?>').style.display='block'"
                                 class="w3-button w3-grey w3-round w3-small">
                                 Lihat Lainnya
                             </button>
-                            <a href="edit_perawatan.php?id_perawatan=<?php echo $row['id_perawatan']; ?>"
-                                class="material-icons w3-yellow w3-btn w3-button w3-round"
-                                style="font-size: 15px;">&#xe22b;</a>
-                            <a href="#"
-                                onclick="deletePerawatan('<?php echo htmlspecialchars($row['id_perawatan']); ?>', '<?php echo htmlspecialchars($row['id_perawatan']); ?>')"
-                                class="fa fa-trash w3-btn w3-button w3-round w3-red" style="font-size: 15px;"></a>
+
+                            <!-- Tombol Hapus Semua -->
+                            <button onclick="bukaModal(<?= $id_hewan ?>)" class="w3-button w3-red w3-round w3-small">
+                                Hapus Semua
+                            </button>
                         </td>
                     </tr>
 
-                    <!-- Modal Detail -->
-                    <div id="detailModal<?= $row['id_perawatan'] ?>" class="w3-modal">
-                        <div class="w3-modal-content w3-card-4 w3-animate-top" style="max-width:600px">
-                            <header class="w3-container w3-center w3-green">
-                                <span
-                                    onclick="document.getElementById('detailModal<?= $row['id_perawatan'] ?>').style.display='none'"
-                                    class="w3-button w3-display-topright">&times;</span>
-                                <h3>
-                                    <b>Detail Perawatan</b>
-                                </h3>
+                    <!-- Modal Konfirmasi -->
+                    <div id="modalHapus<?= $id_hewan ?>" class="w3-modal" style="align-items:center; padding-top: 15%;">
+                        <div class="w3-modal-content w3-animate-top w3-card-4">
+                            <header class="w3-container w3-red">
+                                <h2>Konfirmasi</h2>
                             </header>
                             <div class="w3-container">
-                                <p><strong>ID Perawatan:</strong> <?= htmlspecialchars($row['id_perawatan']); ?></p>
-                                <p><strong>ID Hewan:</strong> <?= htmlspecialchars($row['id_hewan']); ?></p>
-                                <p><strong>Jenis Perawatan:</strong> <?= htmlspecialchars($row['jenis_perawatan']); ?></p>
-                                <p><strong>Harga Perawatan:</strong> Rp.
-                                    <?= number_format($row['harga_perawatan'], 0, ',', '.'); ?>
+                                <p>Apakah Anda yakin ingin menghapus semua data perawatan untuk ID Hewan
+                                    <strong><?= $id_hewan ?></strong>?
                                 </p>
-                                <p><strong>Tanggal Perawatan:</strong> <?= htmlspecialchars($row['tanggal']); ?></p>
-                                <p><strong>Gambar Perawatan:</strong>
-                                    <?php if (!empty($row['gambar'])): ?>
-                                        <img src="<?= $row['gambar'] ?>" width="100" alt="Gambar Perawatan">
-                                    <?php endif; ?>
+                                <div class="w3-right">
+                                    <form action="hapus_semua_perawatan.php" method="POST">
+                                        <input type="hidden" name="id_hewan" value="<?= $id_hewan ?>">
+                                        <button type="button" onclick="tutupModal(<?= $id_hewan ?>)"
+                                            class="w3-button w3-grey w3-round">Batal</button>
+                                        <button type="submit" class="w3-button w3-red w3-round">Ya, Hapus</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function bukaModal(id) {
+                            document.getElementById('modalHapus' + id).style.display = 'block';
+                        }
+
+                        function tutupModal(id) {
+                            document.getElementById('modalHapus' + id).style.display = 'none';
+                        }
+                    </script>
+
+                    <!-- Modal Detail -->
+                    <div id="detailModal<?= $id_hewan ?>" class="w3-modal">
+                        <div class="w3-modal-content w3-card-4 w3-animate-top" style="max-width:600px">
+                            <header class="w3-container w3-center w3-green">
+                                <span onclick="document.getElementById('detailModal<?= $id_hewan ?>').style.display='none'"
+                                    class="w3-button w3-display-topright">&times;</span>
+                                <h4><b>Detail Perawatan - ID Hewan: <?= htmlspecialchars($id_hewan) ?></b></h4>
+                            </header>
+                            <div class="w3-container">
+                                <?php foreach ($perawatanList as $row) { ?>
+                                    <p><strong>ID Perawatan:</strong> <?= htmlspecialchars($row['id_perawatan']); ?></p>
+                                    <p><strong>ID Hewan:</strong> <?= htmlspecialchars($row['id_hewan']); ?></p>
+                                    <p><strong>Jenis Perawatan:</strong> <?= htmlspecialchars($row['jenis_perawatan']); ?></p>
+                                    <p><strong>Harga Perawatan:</strong> Rp.
+                                        <?= number_format($row['harga_perawatan'], 0, ',', '.'); ?>
+                                    </p>
+                                    <p><strong>Tanggal Perawatan:</strong> <?= htmlspecialchars($row['tanggal']); ?></p>
+                                    <p><strong>Gambar Perawatan:</strong><br>
+                                        <?php if (!empty($row['gambar'])): ?>
+                                            <img src="<?= $row['gambar'] ?>" width="100" alt="Gambar Perawatan">
+                                        <?php endif; ?>
+                                    </p>
+                                    <a href="edit_perawatan.php?id_perawatan=<?= $row['id_perawatan']; ?>"
+                                        class="material-icons w3-yellow w3-btn w3-button w3-round"
+                                        style="font-size: 15px;">&#xe22b;</a>
+                                    <a href="#" onclick="deletePerawatan('<?= htmlspecialchars($row['id_perawatan']); ?>')"
+                                        class="fa fa-trash w3-btn w3-button w3-round w3-red" style="font-size: 15px;"></a>
+                                    <hr>
+                                <?php } ?>
                             </div>
                             <footer class="w3-container">
                                 <button
-                                    onclick="document.getElementById('detailModal<?= $row['id_perawatan'] ?>').style.display='none'"
+                                    onclick="document.getElementById('detailModal<?= $id_hewan ?>').style.display='none'"
                                     class="w3-button w3-red w3-right">Tutup</button>
                             </footer>
                         </div>
@@ -411,8 +460,8 @@ $result = mysqli_query($conn, $queryPerawatan);
                 var modal = document.getElementById('deleteModal');
                 modal.style.display = 'block'; // Tampilkan modal konfirmasi
 
-                var modalMessage = modal.querySelector('p');
-                modalMessage.textContent = "Apakah Anda yakin ingin menghapus perawatan ini?";
+                // var modalMessage = modal.querySelector('p');
+                // modalMessage.textContent = "Apakah Anda yakin ingin menghapus perawatan ini?";
 
                 // Simpan nama perawatan yang akan dihapus di button 'Hapus'
                 var confirmButton = modal.querySelector('.w3-button.w3-red');

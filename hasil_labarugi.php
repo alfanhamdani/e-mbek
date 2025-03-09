@@ -294,7 +294,7 @@ $result = mysqli_query($conn, $queryLabarugi);
                                 Lihat Lainnya
                             </button>
                             <a href="#"
-                                onclick="deleteLabarugi('<?php echo htmlspecialchars($row['id_hasil_labarugi']); ?>', '<?php echo htmlspecialchars($row['id_hewan']); ?>')"
+                                onclick="deleteLabarugi('<?php echo htmlspecialchars($row['id_hasil_labarugi']); ?>')"
                                 class="fa fa-trash w3-btn w3-button w3-round w3-red" style="font-size: 15px;"></a>
                         </td>
                     </tr>
@@ -329,10 +329,10 @@ $result = mysqli_query($conn, $queryLabarugi);
                                 <p><strong>Total Perawatan:</strong> Rp.
                                     <?= number_format($row['total_perawatan'], 0, ',', '.'); ?>
                                 </p>
-                                <p><strong>Total Keuntungan:</strong> Rp.
+                                <p style="color: #4CAF50;"><strong>Total Keuntungan:</strong> Rp.
                                     <?= number_format($row['total_keuntungan'], 0, ',', '.'); ?>
                                 </p>
-                                <p><strong>Total Kerugian:</strong> Rp.
+                                <p style="color: #f44336;"><strong>Total Kerugian:</strong> Rp.
                                     <?= number_format($row['total_kerugian'], 0, ',', '.'); ?>
                                 </p>
                             </div>
