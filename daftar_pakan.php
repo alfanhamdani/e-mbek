@@ -270,7 +270,7 @@ $result = mysqli_query($conn, $queryPakan);
             <span class="w3-bar-item">Total: <?php echo $totalPakan; ?> Pakan</span>
         </div>
 
-
+ 
         <?php
         // Mengelompokkan data berdasarkan id_hewan
         $pakanData = [];
