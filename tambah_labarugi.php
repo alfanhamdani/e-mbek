@@ -243,38 +243,43 @@ $result = $conn->query($sql);
             </select><br><br>
 
             <label for="jenis_kelamin">Jenis Kelamin</label>
-            <input type="text" name="jenis_kelamin" class="w3-input w3-border" id="jenis_kelamin" readonly><br>
+            <input type="text" name="jenis_kelamin" class="w3-input w3-border" id="jenis_kelamin"
+                style="background-color: aliceblue;" readonly><br>
 
             <label for="jumlah">Jumlah</label>
-            <input type="number" name="jumlah" class="w3-input w3-border" id="jumlah" readonly><br>
+            <input type="number" name="jumlah" class="w3-input w3-border" id="jumlah"
+                style="background-color: aliceblue;" readonly><br>
 
             <label for="hpp">HPP (Harga Pokok Pembelian)</label>
-            <input type="number" name="hpp" class="w3-input w3-border" id="hpp" step="0.01" readonly><br>
+            <input type="number" name="hpp" class="w3-input w3-border" id="hpp" step="0.01"
+                style="background-color: aliceblue;" readonly><br>
 
             <label for="harga">Harga</label>
             <input type="number" name="harga" class="w3-input w3-border" id="harga" step="0.01" required><br>
 
             <label for="tanggal_pembelian">Tanggal Pembelian</label>
-            <input type="date" name="tanggal_pembelian" class="w3-input w3-border" id="tanggal_pembelian" readonly><br>
+            <input type="date" name="tanggal_pembelian" class="w3-input w3-border" id="tanggal_pembelian"
+                style="background-color: aliceblue;" readonly><br>
 
             <label for="tanggal_penjualan">Tanggal Penjualan</label>
-            <input type="date" name="tanggal_penjualan" class="w3-input w3-border" id="tanggal_penjualan"><br>
+            <input type="date" name="tanggal_penjualan" class="w3-input w3-border" id="tanggal_penjualan" step="0.01"
+                required><br>
 
             <label for="total_pakan">Total Pakan</label>
             <input type="number" name="total_pakan" class="w3-input w3-border" id="total_pakan" step="0.01"
-                readonly><br>
+                style="background-color: aliceblue;" readonly><br>
 
             <label for="total_perawatan">Total Perawatan</label>
             <input type="number" name="total_perawatan" class="w3-input w3-border" id="total_perawatan" step="0.01"
-                readonly><br>
+                style="background-color: aliceblue;" readonly><br>
 
             <label for="total_keuntungan">Total Keuntungan</label>
             <input type="number" name="total_keuntungan" class="w3-input w3-border" id="total_keuntungan" step="0.01"
-                readonly><br>
+                style="background-color: aliceblue;" readonly><br>
 
             <label for="total_kerugian">Total Kerugian</label>
             <input type="number" name="total_kerugian" class="w3-input w3-border" id="total_kerugian" step="0.01"
-                readonly><br>
+                style="background-color: aliceblue;" readonly><br>
 
             <div class="w3-half">
                 <a href="hasil_labarugi.php" class="w3-gray w3-button w3-container w3-padding-16"
