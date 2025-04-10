@@ -75,8 +75,8 @@ if (isset($_GET['id_hewan'])) {
 }
 
 // Ambil daftar hewan untuk dropdown, hanya yang memiliki void = 0
-$sql = "SELECT id_hewan FROM mbek_hewan WHERE void = 0";
-$result = $conn->query($sql);
+$sql = "SELECT id_hewan FROM mbek_hewan WHERE void = 0 
+        AND id_hewan NOT IN (SELECT id_hewan FROM mbek_hasil_labarugi WHERE void = 0)";
 ?>
 
 <!DOCTYPE html>
