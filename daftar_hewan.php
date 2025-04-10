@@ -305,14 +305,59 @@ $result = mysqli_query($conn, $queryHewan);
                                             <img src="<?php echo htmlspecialchars($row['qr_link']); ?>" alt="QR Code"
                                                 class="w3-image"
                                                 style="width: 300px; height: 300px; display: block; margin: auto;">
+
+                                            <!-- Tambahan Jenis Kelamin dan Harga -->
+                                            <div class="w3-center w3-margin-top">
+                                                <p><b>Jenis Kelamin:</b> <?php echo htmlspecialchars($row['jenis_kelamin']); ?>
+                                                </p>
+                                                <p><b>Harga:</b> Rp. <?php echo number_format($row['harga'], 0, ',', '.'); ?>
+                                                </p>
+                                            </div>
                                         </div>
                                         <footer class="w3-container w3-center w3-padding">
+                                            <button onclick="printQR<?php echo $row['id_hewan']; ?>()"
+                                                class="w3-button w3-green w3-left">Cetak</button>
+
                                             <button
                                                 onclick="document.getElementById('modal-qr-<?php echo $row['id_hewan']; ?>').style.display='none'"
                                                 class="w3-button w3-red w3-right">Tutup</button>
                                         </footer>
                                     </div>
                                 </div>
+                                <script>
+                                    function printQR<?php echo $row['id_hewan']; ?>() {
+                                        var qrImage = "<?php echo htmlspecialchars($row['qr_link']); ?>";
+                                        var jenisKelamin = "<?php echo htmlspecialchars($row['jenis_kelamin']); ?>";
+                                        var harga = "<?php echo 'Rp. ' . number_format($row['harga'], 0, ',', '.'); ?>";
+
+                                        var printWindow = window.open('', '_blank');
+                                        printWindow.document.write(`
+                                            <html>
+                                                <head>
+                                                    <title>Cetak QR Code</title>
+                                                    <style>
+                                                        body { text-align: center; font-family: Arial, sans-serif; padding: 20px; }
+                                                        img { width: 300px; height: 300px; margin-bottom: 20px; }
+                                                        p { font-size: 18px; margin: 5px 0; }
+                                                    </style>
+                                                </head>
+                                                <body>
+                                                    <img src="${qrImage}" alt="QR Code">
+                                                    <p><strong>Jenis Kelamin:</strong> ${jenisKelamin}</p>
+                                                    <p><strong>Harga:</strong> ${harga}</p>
+                                                    <script>
+                                                        window.onload = function() {
+                                                            window.print();
+                                                            window.onafterprint = function () { window.close(); }
+                                                        };
+                                                    <\/script>
+                                                </body>
+                                            </html>
+                                        `);
+                                        printWindow.document.close();
+                                    }
+                                </script>
+
                             <?php } else { ?>
                                 <span class="w3-text-red">Belum Ada</span>
                             <?php } ?>

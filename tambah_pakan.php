@@ -168,7 +168,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="text" id="harga_pakan" class="w3-input w3-border" name="harga_pakan" required
                 oninput="formatRibuan(this)"></label><br>
             <label>Tanggal</label>
-            <input type="date" class="w3-input w3-border" name="tanggal" required><br>
+            <input type="date" class="w3-input w3-border" name="tanggal" value="<?php echo date('Y-m-d'); ?>"
+                required><br>
 
             <div class="w3-half">
                 <a href="daftar_pakan.php" class="w3-gray w3-button w3-container w3-padding-16"

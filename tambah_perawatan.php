@@ -186,7 +186,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="text" id="harga_perawatan" class="w3-input w3-border" name="harga_perawatan" required
                 oninput="formatRibuan(this)"></label><br>
             <label>Tanggal</label>
-            <input type="date" class="w3-input w3-border" name="tanggal" required><br>
+            <input type="date" class="w3-input w3-border" name="tanggal" value="<?php echo date('Y-m-d'); ?>"
+                required><br>
 
             <label>Unggah Gambar</label>
             <input type="file" class="w3-input w3-border" name="gambar" accept="image/*"><br>
