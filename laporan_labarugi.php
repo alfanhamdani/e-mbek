@@ -175,19 +175,28 @@ $username = $_SESSION['username']; // Ambil username pengguna dari sesi
 
             // Menampilkan data jika ada hasil
             if ($result->num_rows > 0) {
-                echo '<div class="responsive-table">';
-                echo '<div class="table-header">Bulan</div>';
-                echo '<div class="table-header">Total Keuntungan</div>';
-                echo '<div class="table-header">Total Kerugian</div>';
+                echo '<div class="w3-container w3-margin-top">';
+                echo '<div class="w3-responsive">';
+                echo '<div class="w3-table-all w3-card-4">';
+                echo '<div class="w3-row w3-green w3-padding-small w3-bold">';
+                echo '<div class="w3-col s4 m4 l4">Bulan</div>';
+                echo '<div class="w3-col s4 m4 l4">Total Keuntungan</div>';
+                echo '<div class="w3-col s4 m4 l4">Total Kerugian</div>';
+                echo '</div>';
 
                 while ($row = $result->fetch_assoc()) {
-                    echo '<div class="table-cell">' . htmlspecialchars($bulan) . '</div>';
-                    echo '<div class="table-cell">Rp. ' . number_format($row['total_keuntungan'], 0, ',', '.') . '</div>';
-                    echo '<div class="table-cell">Rp. ' . number_format($row['total_kerugian'], 0, ',', '.') . '</div>';
+                    echo '<div class="w3-row w3-padding-small w3-hover-light-grey">';
+                    echo '<div class="w3-col s4 m4 l4">' . htmlspecialchars($bulan) . '</div>';
+                    echo '<div class="w3-col s4 m4 l4">Rp. ' . number_format($row['total_keuntungan'], 0, ',', '.') . '</div>';
+                    echo '<div class="w3-col s4 m4 l4">Rp. ' . number_format($row['total_kerugian'], 0, ',', '.') . '</div>';
+                    echo '</div>';
                 }
-                echo '</div>';
+
+                echo '</div>'; // end w3-table-all
+                echo '</div>'; // end w3-responsive
+                echo '</div>'; // end w3-container
             } else {
-                echo '<p class="w3-center">Tidak ada data untuk bulan ' . htmlspecialchars($bulan) . ' dan tahun ' . htmlspecialchars($tahun) . '</p>';
+                echo '<p class="w3-center w3-text-red w3-padding">Tidak ada data untuk bulan <b>' . htmlspecialchars($bulan) . '</b> dan tahun <b>' . htmlspecialchars($tahun) . '</b>.</p>';
             }
 
             $stmt->close();
