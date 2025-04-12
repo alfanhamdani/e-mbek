@@ -12,33 +12,32 @@ $username = $_SESSION['username']; // Ambil username pengguna dari sesi
 
 // Proses simpan data jika form disubmit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id_hewan = intval($_POST['id_hewan']);
-    $jenis_kelamin = $_POST['jenis_kelamin'];
-    $jumlah = intval($_POST['jumlah']);
-    $hpp = floatval($_POST['hpp']);
-    $harga = floatval($_POST['harga']);
-    $tanggal_pembelian = $_POST['tanggal_pembelian'];
-    $tanggal_penjualan = $_POST['tanggal_penjualan'];
-    $total_pakan = floatval($_POST['total_pakan']);
-    $total_perawatan = floatval($_POST['total_perawatan']);
-    $total_keuntungan = floatval($_POST['total_keuntungan']);
-    $total_kerugian = floatval($_POST['total_kerugian']);
-    $date_record = date('Y-m-d H:i:s'); // Waktu saat ini
-    $user_record = $username;
-    $void = 0;
+    $jumlahData = count($_POST['id_hewan']);
 
-    // Query untuk menyimpan data ke database
-    $query = "INSERT INTO mbek_hasil_labarugi (id_hewan, jenis_kelamin, jumlah, hpp, harga, tanggal_pembelian, tanggal_penjualan, total_pakan, total_perawatan, total_keuntungan, total_kerugian, date_record, user_record, void) 
-              VALUES ('$id_hewan', '$jenis_kelamin', '$jumlah', '$hpp', '$harga', '$tanggal_pembelian', '$tanggal_penjualan', '$total_pakan', '$total_perawatan', '$total_keuntungan', '$total_kerugian', '$date_record', '$user_record', '$void')";
+    for ($i = 0; $i < $jumlahData; $i++) {
+        $id_hewan = intval($_POST['id_hewan'][$i]);
+        $jenis_kelamin = $_POST['jenis_kelamin'][$i];
+        $jumlah = intval($_POST['jumlah'][$i]);
+        $hpp = floatval($_POST['hpp'][$i]);
+        $harga = floatval($_POST['harga'][$i]);
+        $tanggal_pembelian = $_POST['tanggal_pembelian'][$i];
+        $total_pakan = floatval($_POST['total_pakan'][$i]);
+        $total_perawatan = floatval($_POST['total_perawatan'][$i]);
+        $total_keuntungan = floatval($_POST['total_keuntungan'][$i]);
+        $total_kerugian = floatval($_POST['total_kerugian'][$i]);
+        $tanggal_penjualan = date('Y-m-d'); // Atau dari input jika ingin
+        $date_record = date('Y-m-d H:i:s');
+        $user_record = $username;
+        $void = 0;
 
-    if (mysqli_query($conn, $query)) {
-        header('Location: hasil_labarugi.php');
-        exit;
-    } else {
-        echo "Error: " . mysqli_error($conn);
+        $query = "INSERT INTO mbek_hasil_labarugi (id_hewan, jenis_kelamin, jumlah, hpp, harga, tanggal_pembelian, tanggal_penjualan, total_pakan, total_perawatan, total_keuntungan, total_kerugian, date_record, user_record, void) 
+                  VALUES ('$id_hewan', '$jenis_kelamin', '$jumlah', '$hpp', '$harga', '$tanggal_pembelian', '$tanggal_penjualan', '$total_pakan', '$total_perawatan', '$total_keuntungan', '$total_kerugian', '$date_record', '$user_record', '$void')";
+
+        mysqli_query($conn, $query);
     }
 
-    $stmt->close();
+    header('Location: hasil_labarugi.php');
+    exit;
 }
 
 // Jika ada permintaan data hewan (AJAX)
@@ -155,44 +154,72 @@ $result = $conn->query($sql);
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('id_hewan').addEventListener('change', function () {
-                const idHewan = this.value;
+        function tambahBaris() {
+            const formRow = document.querySelector('.form-row');
+            const clone = formRow.cloneNode(true);
 
-                if (idHewan) {
-                    fetch(`tambah_labarugi.php?id_hewan=${idHewan}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data) {
-                                document.getElementById('jenis_kelamin').value = data.jenis_kelamin;
-                                document.getElementById('jumlah').value = data.jumlah;
-                                document.getElementById('hpp').value = data.hpp; // Harga jadi HPP
-                                document.getElementById('tanggal_pembelian').value = data.tanggal;
-                                document.getElementById('total_pakan').value = data.total_pakan;
-                                document.getElementById('total_perawatan').value = data.total_perawatan;
-                            } else {
-                                alert('Data tidak ditemukan untuk ID Hewan ini.');
-                            }
-                        })
-                        .catch(error => console.error('Error:', error));
-                }
+            // Kosongkan input pada baris baru
+            clone.querySelectorAll('input, select').forEach(el => {
+                if (el.type !== 'button') el.value = '';
             });
 
-            document.getElementById('harga').addEventListener('input', function () {
-                const hpp = parseFloat(document.getElementById('hpp').value) || 0;
-                const hargaPenjualan = parseFloat(this.value) || 0;
-                const hargaPakan = parseFloat(document.getElementById('total_pakan').value) || 0;
-                const hargaPerawatan = parseFloat(document.getElementById('total_perawatan').value) || 0;
+            document.getElementById('form-container').appendChild(clone);
+            bindEvents(); // re-bind event listener
+        }
 
-                const totalBiaya = hpp + hargaPakan + hargaPerawatan;
-                const totalKeuntungan = hargaPenjualan - totalBiaya;
-                const totalKerugian = totalBiaya > hargaPenjualan ? totalBiaya - hargaPenjualan : 0;
+        function hapusBaris(button) {
+            const rows = document.querySelectorAll('.form-row');
+            if (rows.length > 1) {
+                button.parentElement.remove();
+            } else {
+                alert("Minimal satu baris harus ada.");
+            }
+        }
 
-                document.getElementById('total_keuntungan').value = totalKeuntungan > 0 ? totalKeuntungan.toFixed(2) : 0;
-                document.getElementById('total_kerugian').value = totalKerugian > 0 ? totalKerugian.toFixed(2) : 0;
+        function bindEvents() {
+            document.querySelectorAll('.id-hewan').forEach(select => {
+                select.onchange = function () {
+                    const parent = this.closest('.form-row');
+                    const idHewan = this.value;
+
+                    if (idHewan) {
+                        fetch(`tambah_labarugi.php?id_hewan=${idHewan}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data) {
+                                    parent.querySelector('.jenis-kelamin').value = data.jenis_kelamin;
+                                    parent.querySelector('.jumlah').value = data.jumlah;
+                                    parent.querySelector('.hpp').value = data.hpp;
+                                    parent.querySelector('.tanggal-pembelian').value = data.tanggal;
+                                    parent.querySelector('.total-pakan').value = data.total_pakan;
+                                    parent.querySelector('.total-perawatan').value = data.total_perawatan;
+                                }
+                            });
+                    }
+                };
             });
-        });
+
+            document.querySelectorAll('.harga').forEach(input => {
+                input.oninput = function () {
+                    const parent = this.closest('.form-row');
+                    const hpp = parseFloat(parent.querySelector('.hpp').value) || 0;
+                    const harga = parseFloat(this.value) || 0;
+                    const pakan = parseFloat(parent.querySelector('.total-pakan').value) || 0;
+                    const perawatan = parseFloat(parent.querySelector('.total-perawatan').value) || 0;
+
+                    const totalBiaya = hpp + pakan + perawatan;
+                    const keuntungan = harga - totalBiaya;
+                    const kerugian = totalBiaya > harga ? totalBiaya - harga : 0;
+
+                    parent.querySelector('.total-keuntungan').value = keuntungan > 0 ? keuntungan.toFixed(2) : 0;
+                    parent.querySelector('.total-kerugian').value = kerugian > 0 ? kerugian.toFixed(2) : 0;
+                };
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', bindEvents);
     </script>
+
 
 </head>
 
@@ -231,67 +258,86 @@ $result = $conn->query($sql);
 
     <div class="w3-container w3-padding-16">
         <form action="tambah_labarugi.php" method="POST"
-            class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin">
-            <label for="id_hewan">ID Hewan</label>
-            <select name="id_hewan" class="w3-input w3-border" id="id_hewan" required>
-                <option value="">Pilih id hewan</option>
-                <?php
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<option value='{$row['id_hewan']}'>{$row['id_hewan']}</option>";
-                    }
-                } else {
-                    echo "<option value=''>Data Hewan Tidak Ada</option>";
-                }
-                ?>
-            </select><br><br>
+            class="w3-container w3-card-4 w3-light-grey w3-padding-16 w3-margin" id="form-labarugi">
+            <div id="form-container">
+                <div class="form-row">
+                    <label>ID Hewan</label>
+                    <select name="id_hewan[]" class="w3-input w3-border id-hewan" required>
+                        <option value="">Pilih id hewan</option>
+                        <?php
+                        $result->data_seek(0); // reset pointer result agar bisa diulang
+                        
+                        if ($result->num_rows > 0) {
+                            while ($row = $result->fetch_assoc()) {
+                                echo "<option value='{$row['id_hewan']}'>{$row['id_hewan']}</option>";
+                            }
+                        } else {
+                            echo "<option value=''>Data Hewan Tidak Ada</option>";
+                        }
 
-            <label for="jenis_kelamin">Jenis Kelamin</label>
-            <input type="text" name="jenis_kelamin" class="w3-input w3-border" id="jenis_kelamin"
-                style="background-color: aliceblue;" readonly><br>
+                        // while ($row = $result->fetch_assoc()) {
+                        //     echo "<option value='{$row['id_hewan']}'>{$row['id_hewan']}</option>";
+                        // }
+                        ?>
+                    </select><br>
 
-            <label for="jumlah">Jumlah</label>
-            <input type="number" name="jumlah" class="w3-input w3-border" id="jumlah"
-                style="background-color: aliceblue;" readonly><br>
+                    <label>Jenis Kelamin</label>
+                    <input type="text" name="jenis_kelamin[]" class="w3-input w3-border jenis-kelamin"
+                        style="background-color: aliceblue;" readonly><br>
 
-            <label for="hpp">HPP (Harga Pokok Pembelian)</label>
-            <input type="number" name="hpp" class="w3-input w3-border" id="hpp" step="0.01"
-                style="background-color: aliceblue;" readonly><br>
+                    <label>Jumlah</label>
+                    <input type="number" name="jumlah[]" class="w3-input w3-border jumlah"
+                        style="background-color: aliceblue;" readonly><br>
 
-            <label for="harga">Harga</label>
-            <input type="number" name="harga" class="w3-input w3-border" id="harga" step="0.01" required><br>
+                    <label>HPP</label>
+                    <input type="number" name="hpp[]" class="w3-input w3-border hpp"
+                        style="background-color: aliceblue;" readonly><br>
 
-            <label for="tanggal_pembelian">Tanggal Pembelian</label>
-            <input type="date" name="tanggal_pembelian" class="w3-input w3-border" id="tanggal_pembelian"
-                style="background-color: aliceblue;" readonly><br>
+                    <label>Harga</label>
+                    <input type="number" name="harga[]" class="w3-input w3-border harga" step="0.01" required><br>
 
-            <label for="tanggal_penjualan">Tanggal Penjualan</label>
-            <input type="date" name="tanggal_penjualan" class="w3-input w3-border" id="tanggal_penjualan" step="0.01"
-                required><br>
+                    <label>Tanggal Pembelian</label>
+                    <input type="date" name="tanggal_pembelian[]" class="w3-input w3-border tanggal-pembelian"
+                        style="background-color: aliceblue;" readonly><br>
 
-            <label for="total_pakan">Total Pakan</label>
-            <input type="number" name="total_pakan" class="w3-input w3-border" id="total_pakan" step="0.01"
-                style="background-color: aliceblue;" readonly><br>
+                    <label>Tanggal Penjualan</label>
+                    <input type="date" name="tanggal_penjualan[]" class="w3-input w3-border tanggal-penjualan"
+                        required><br>
 
-            <label for="total_perawatan">Total Perawatan</label>
-            <input type="number" name="total_perawatan" class="w3-input w3-border" id="total_perawatan" step="0.01"
-                style="background-color: aliceblue;" readonly><br>
+                    <label>Total Pakan</label>
+                    <input type="number" name="total_pakan[]" class="w3-input w3-border total-pakan"
+                        style="background-color: aliceblue;" readonly><br>
 
-            <label for="total_keuntungan">Total Keuntungan</label>
-            <input type="number" name="total_keuntungan" class="w3-input w3-border" id="total_keuntungan" step="0.01"
-                style="background-color: aliceblue;" readonly><br>
+                    <label>Total Perawatan</label>
+                    <input type="number" name="total_perawatan[]" class="w3-input w3-border total-perawatan"
+                        style="background-color: aliceblue;" readonly><br>
 
-            <label for="total_kerugian">Total Kerugian</label>
-            <input type="number" name="total_kerugian" class="w3-input w3-border" id="total_kerugian" step="0.01"
-                style="background-color: aliceblue;" readonly><br>
+                    <label>Total Keuntungan</label>
+                    <input type="number" name="total_keuntungan[]" class="w3-input w3-border total-keuntungan"
+                        style="background-color: aliceblue;" readonly><br>
 
-            <div class="w3-half">
-                <a href="hasil_labarugi.php" class="w3-gray w3-button w3-container w3-padding-16"
-                    style="width: 100%;">Kembali</a>
+                    <label>Total Kerugian</label>
+                    <input type="number" name="total_kerugian[]" class="w3-input w3-border total-kerugian"
+                        style="background-color: aliceblue;" readonly><br>
+
+                    <button type="button" onclick="hapusBaris(this)" class="w3-button w3-red w3-small">Hapus
+                        Baris</button>
+                    <hr>
+                </div>
             </div>
-            <div class="w3-half">
-                <input type="submit" class="w3-button w3-green w3-container w3-padding-16" style="width: 100%;"
-                    value="Tambah">
+
+            <!-- Tombol Tambah Baris -->
+            <button type="button" onclick="tambahBaris()" class="w3-button w3-blue w3-margin-bottom">+ Tambah
+                Baris</button><br>
+            <div class="w3-row">
+                <div class="w3-half">
+                    <a href="hasil_labarugi.php" class="w3-gray w3-button w3-container w3-padding-16"
+                        style="width: 100%;">Kembali</a>
+                </div>
+                <div class="w3-half">
+                    <input type="submit" class="w3-button w3-green w3-container w3-padding-16" style="width: 100%;"
+                        value="Tambah">
+                </div>
             </div>
         </form>
     </div>
