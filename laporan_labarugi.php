@@ -117,7 +117,7 @@ $username = $_SESSION['username']; // Ambil username pengguna dari sesi
             <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
                 <h3
                     style="margin: 0; line-height: 1.5rem; text-align: center; font-size: 25px; margin-top:5px; margin-bottom: 10px;">
-                    <b>Hasil Laba Rugi</b>
+                    <b>Laporan Laba Rugi</b>
                 </h3>
                 <div>
                     <!-- Form untuk memilih bulan -->
